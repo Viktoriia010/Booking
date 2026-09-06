@@ -2,6 +2,8 @@ import {createBrowserRouter} from "react-router";
 import Layout from "@/components/layout/Layout.tsx";
 import ErrorPage from "@/pages/ErrorPage.tsx";
 import Home from "@/pages/Home.tsx";
+import {DashboardPage} from "@/pages/DashboardPage.tsx";
+import {ProtectedRoute} from "@/components/ProtectedRoute.tsx";
 
 export const routes = createBrowserRouter([
     {
@@ -20,6 +22,15 @@ export const routes = createBrowserRouter([
             {
                 index: true,
                 Component:Home
+            },
+            {
+                element: <ProtectedRoute />,
+                children: [
+                    {
+                        path: 'dashboard',
+                        element: <DashboardPage />,
+                    },
+                ],
             },
         ],
     },

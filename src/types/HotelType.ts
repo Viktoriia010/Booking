@@ -6,7 +6,7 @@ export type HotelType = {
     rating: number,
     location: string,
     price:number,
-    is_liked: boolean,
+    //is_liked: boolean,
     // images: FileList
     images: string[];
 }

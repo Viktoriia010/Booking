@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { HotelType } from "@/types/HotelType.ts";
 import star from "@/assets/like-star.svg"
 import starLiked from "@/assets/star-circle-fill.svg"
+import starRating from "@/assets/star-rounded.svg"
 
 //доробити виведення рейтингу
 //подумати на рахунок лайкнутих
@@ -13,7 +14,7 @@ const Hotel = ({ hotel }: { hotel: HotelType }) => {
             localStorage.getItem("selected") || "[]"
         );
 
-        return selected.includes(hotel.id) || hotel.is_liked;
+        return selected.includes(hotel.id);
     });
 
 
@@ -36,7 +37,7 @@ const Hotel = ({ hotel }: { hotel: HotelType }) => {
     }
 
     return (
-        <div className="w-full max-w-[272px] text-[#222] font-['Nunito_Sans']">
+        <div className="w-full max-w-[272px] text-[#222] font-['Nunito_Sans'] cursor-pointer">
 
             {/* Image */}
             <div className="relative aspect-[1/0.9] overflow-hidden rounded-[15px]">
@@ -81,10 +82,19 @@ const Hotel = ({ hotel }: { hotel: HotelType }) => {
             </div>
 
             {/* Rating */}
-            <div className=" flex items-center gap-1 text-[17px]">
-                <span className="tracking-[2px] text-[#6326d9]">
-                    ★★★★★
-                </span>
+            <div className=" flex items-center ">
+                {Array.from({ length: 5 }).map((_, index) => (
+                    <img
+                        key={index}
+                        src={starRating}
+                        alt="star"
+                        className={`h-3.5 w-3.5 ${
+                            index < hotel.rating / 2
+                                ? "opacity-100"
+                                : "opacity-30"
+                        }`}
+                    />
+                ))}
             </div>
 
             {/* Location */}

@@ -11,7 +11,7 @@ const Layout = () => {
 
             <Header />
 
-            <main className="mx-auto w-full flex-1 bg-white">
+            <main className="mx-auto w-full flex-1 bg-white pb-17">
 
                 <Outlet />
 

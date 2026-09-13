@@ -66,7 +66,7 @@ const Header = () => {
                         </>
                     )}
 
-                    {/* Modal */}
+
                     <Modal
                         open={modal !== null}
                         closeModal={closeModal}

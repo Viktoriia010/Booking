@@ -6,7 +6,7 @@ const reviews: ReviewType[] = [
         username: "Olivia",
         hotelName: "Mountain Lake Resort",
         text: "Amazing hotel! The room was clean, comfortable, and the view was absolutely beautiful.",
-        date: new Date("2026-08-23"),
+        date: new Date("2026-07-23"),
         userImage: "/ava_3.svg",
     },
     {

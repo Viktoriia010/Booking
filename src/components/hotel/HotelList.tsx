@@ -3,7 +3,7 @@ import hotels from "@/models/hotels.ts";
 
 const HotelList = () => {
     return (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto scrollbar-hide">
             <div className="grid grid-flow-col grid-rows-2 gap-x-7 gap-y-9 w-max px-3
                             lg:grid-flow-row lg:w-auto
                             lg:grid-cols-4">

@@ -1,10 +1,20 @@
 import banner from "@/assets/banner.jpg";
 import HotelList from "@/components/hotel/HotelList.tsx";
 import ReviewList from "@/components/reviews/ReviewList.tsx";
+import benefits from "@/models/benefits.ts";
+import woman from "@/assets/photo-woman.avif";
+import Modal from "@/components/Modal.tsx";
+import {RegisterPage} from "@/pages/RegisterPage.tsx";
+import {LoginPage} from "@/pages/LoginPage.tsx";
+import {useState} from "react";
 
 //зробити вибір дат по календарю
 
 export default function Home() {
+    const [modal, setModal] = useState<"login" | "register" | null>(null);
+
+    const closeModal = () => setModal(null);
+
     return (
         <>
             <section className="relative h-[220px] w-full font-['Nunito Sans']">
@@ -92,13 +102,105 @@ className="w-10 h-10 cursor-pointer"
             <section className="mx-auto max-w-6xl px-4 py-12">
                     <HotelList/>
             </section>
-            <section className="mx-auto max-w-6xl pb-8 font-['Nunito Sans']">
-                <h2 className="mb-4 text-center text-[16px] uppercase text-[#717171]">
+            <section className="mx-auto max-w-6xl px-4 pb-8 font-['Nunito Sans']">
+                <h2 className="mb-6 text-center text-[16px] uppercase text-[#717171]">
                     Reviews
                 </h2>
 
                     <ReviewList/>
             </section>
+            <section className="mx-auto max-w-6xl px-4 py-8">
+                <h2 className="mb-6 text-center text-[16px] uppercase text-[#717171]">
+                    Safe with us
+                </h2>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+                    {benefits.map((benefit) => (
+                        <div
+                            key={benefit.text}
+                            className="flex h-[208px] flex-col items-center justify-center rounded-[13px] border border-[#DDDDDD] px-4 text-center last:col-span-2 sm:last:col-span-1"
+                        >
+                            <img
+                                src={benefit.icon}
+                                alt=""
+                                className="mb-4 h-[24.38px] w-24"
+                            />
+
+                            <p className="text-[16px] leading-6 text-[#717171]">
+                                {benefit.text}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section className="mx-auto max-w-6xl px-4 py-8 font-['Nunito Sans']">
+                <h2 className="mb-6 text-center text-[16px] uppercase text-[#717171]">
+                    Be our regular
+                </h2>
+
+                <div className="flex flex-col gap-6 md:flex-row md:items-center">
+                    <img
+                        src={woman}
+                        alt="Travel"
+                        className="h-[171px] min-w-[272px] w-full rounded-[13px] object-cover md:w-[25%]"
+                    />
+
+                    <div className="flex min-h-[171px] flex-1 text-[15px] leading-6 text-black flex-col justify-center rounded-[13px] border border-[#E5E5E5] bg-white px-6 py-4 shadow-[0_3px_12px_rgba(0,0,0,0.06)]">
+                        <p>
+                            We believe that every customer deserves the best,
+                            and we&apos;re committed to providing top-class
+                            services to all of our clients. When you book with
+                            us, you can enjoy not only great deals on your
+                            travel arrangements, but also exclusive discounts
+                            and special offers. We value your loyalty and want
+                            to show our appreciation by giving back.
+                        </p>
+
+                        <p className="mt-4">
+                            So start your search today and discover the amazing
+                            rewards waiting for you on our website!
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section className="flex justify-center px-4 pb-24 mt-5 ">
+                <img
+                src="/flagr.svg"
+                />
+                <button
+                    type="button"
+                    className="rounded-[30px] bg-[#581ADB] sm:px-13 px-10 py-4 sm:py-4.5 mx-4 text-[14px] cursor-pointer font-bold text-white
+                    shadow-[0_5px_20px_rgba(93,22,232,0.35)]
+                    transition-all
+                    duration-200
+                    hover:scale-105
+                    hover:shadow-[0_8px_28px_rgba(93,22,232,0.5)]"
+                    onClick={() => setModal("register")}
+                >
+                    Register an account
+                </button>
+                <img
+                    src="/flag.svg"
+                />
+            </section>
+            <Modal
+                open={modal !== null}
+                closeModal={closeModal}
+            >
+                {modal === "register" && (
+                    <RegisterPage
+                        onRegister={() => setModal("login")}
+                    />
+                )}
+
+                {modal === "login" && (
+                    <LoginPage
+                        onRegister={() => setModal("register")}
+                        onSuccess={closeModal}
+                    />
+                )}
+            </Modal>
             </>
     );
 }

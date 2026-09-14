@@ -1,14 +1,19 @@
+import { RouterProvider } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { HotelsProvider } from "./context/HotelsContext";
+import { BookingProvider } from "./context/BookingContext";
+import { routes } from "./routes";
 
-import './App.css'
-// import Layout from "./components/layout/Layout.tsx";
+const App = () => {
+    return (
+        <AuthProvider>
+            <HotelsProvider>
+                <BookingProvider>
+                    <RouterProvider router={routes} />
+                </BookingProvider>
+            </HotelsProvider>
+        </AuthProvider>
+    );
+};
 
-function App() {
-
-  return (
-    <>
-{/*<Layout/>*/}
-    </>
-  )
-}
-
-export default App
+export default App;

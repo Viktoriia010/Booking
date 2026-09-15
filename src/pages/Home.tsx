@@ -3,10 +3,12 @@ import HotelList from "@/components/hotel/HotelList.tsx";
 import ReviewList from "@/components/reviews/ReviewList.tsx";
 import benefits from "@/models/benefits.ts";
 import woman from "@/assets/photo-woman.avif";
-import Modal from "@/components/Modal.tsx";
-import {RegisterPage} from "@/pages/RegisterPage.tsx";
-import {LoginPage} from "@/pages/LoginPage.tsx";
+// import {RegisterPage} from "@/pages/Auth/RegisterPage.tsx";
+// import {LoginPage} from "@/pages/Auth/LoginPage.tsx";
 import {useState} from "react";
+import Modal from "@/components/modal/Modal.tsx";
+import Login from "@/pages/Auth/Login.tsx";
+import Register from "@/pages/Auth/Register.tsx";
 
 //зробити вибір дат по календарю
 
@@ -189,13 +191,13 @@ className="w-10 h-10 cursor-pointer"
                 closeModal={closeModal}
             >
                 {modal === "register" && (
-                    <RegisterPage
+                    <Register
                         onRegister={() => setModal("login")}
                     />
                 )}
 
                 {modal === "login" && (
-                    <LoginPage
+                    <Login
                         onRegister={() => setModal("register")}
                         onSuccess={closeModal}
                     />

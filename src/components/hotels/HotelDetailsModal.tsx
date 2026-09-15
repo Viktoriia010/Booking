@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Hotel } from "../../context/HotelsContext.types";
-import { useHotels } from "../../context/useHotels";
+import { useHotels } from "../../hooks/useHotels.ts";
 import { getImageUrl } from "../../api";
 import { useAuth } from "../../context/useAuth";
 import Modal from "../modal/Modal";

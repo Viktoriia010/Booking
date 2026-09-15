@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { apiFetch, getImageUrl, readError } from "../../api";
 import { useAuth } from "../../context/useAuth";
-import { useBooking } from "../../context/useBooking";
+import { useBooking } from "../../hooks/useBooking.ts";
 import type { Room } from "../../context/HotelsContext.types";
 
 const BookingPage = () => {

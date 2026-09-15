@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { HotelsContext } from "./HotelsContext.types";
+import { HotelsContext } from "../context/HotelsContext.types.ts";
 
 export function useHotels() {
     const context = useContext(HotelsContext);

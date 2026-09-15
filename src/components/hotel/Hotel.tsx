@@ -4,9 +4,6 @@ import star from "@/assets/like-star.svg"
 import starLiked from "@/assets/star-circle-fill.svg"
 import starRating from "@/assets/star-rounded.svg"
 
-//доробити виведення рейтингу
-//подумати на рахунок лайкнутих
-
 const Hotel = ({ hotel }: { hotel: HotelType }) => {
     const [currentImage, setCurrentImage] = useState(0);
     const[liked, setLiked] = useState(() => {

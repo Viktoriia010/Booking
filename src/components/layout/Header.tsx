@@ -1,12 +1,14 @@
-import Modal from "@/components/Modal.tsx";
-import {LoginPage} from "@/pages/LoginPage.tsx";
-import {RegisterPage} from "@/pages/RegisterPage.tsx";
+// import {LoginPage} from "@/pages/Auth/LoginPage.tsx";
+// import {RegisterPage} from "@/pages/Auth/RegisterPage.tsx";
 import {useState} from "react";
-import {useAuth} from "@/hooks/useAuth.ts";
-import {NavLink} from "react-router";
+import {useAuth} from "@/context/useAuth.ts";
+import {NavLink} from "react-router-dom";
+import Modal from "@/components/modal/Modal.tsx";
+import Register from "@/pages/Auth/Register.tsx";
+import Login from "@/pages/Auth/Login.tsx";
 
 const Header = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuth } = useAuth();
     const [modal, setModal] = useState<"login" | "register" | null>(null);
 
 
@@ -27,9 +29,9 @@ const Header = () => {
                         className="h-5 w-5 cursor-pointer sm:h-auto sm:w-auto"
                     />
 
-                    {isAuthenticated ? (
+                    {isAuth ? (
                             <NavLink
-                                to="/dashboard"
+                                to="/account"
                             >
                                 <button
                                     className="flex cursor-pointer items-center gap-1.5 rounded-[30px] border border-[#DDDDDD] py-1.5 pl-3 pr-1.5 text-sm sm:gap-2 sm:pl-4 sm:text-[16px]"
@@ -72,13 +74,13 @@ const Header = () => {
                         closeModal={closeModal}
                     >
                         {modal === "register" && (
-                            <RegisterPage
+                            <Register
                                 onRegister={() => setModal("login")}
                             />
                         )}
 
                         {modal === "login" && (
-                            <LoginPage
+                            <Login
                                 onRegister={() => setModal("register")}
                                 onSuccess={closeModal}
                             />

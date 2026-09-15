@@ -28,7 +28,7 @@ const AccountPage = () => {
 
     useEffect(() => {
         if (!isAuth) {
-            navigate("/login");
+            navigate("/");
             return;
         }
         const load = async () => {

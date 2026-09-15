@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Hotel } from "../../context/HotelsContext.types";
-import { useHotels } from "../../context/useHotels";
+import { useHotels } from "../../hooks/useHotels.ts";
 import SearchForm from "../../components/hotels/SearchForm";
 import HotelFilters from "../../components/hotels/HotelFilters";
 import HotelCard from "../../components/hotels/HotelCard";

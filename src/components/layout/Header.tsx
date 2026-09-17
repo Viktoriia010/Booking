@@ -6,10 +6,16 @@ import {NavLink} from "react-router-dom";
 import Modal from "@/components/modal/Modal.tsx";
 import Register from "@/pages/Auth/Register.tsx";
 import Login from "@/pages/Auth/Login.tsx";
+import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
 
 const Header = () => {
     const { isAuth } = useAuth();
-    const [modal, setModal] = useState<"login" | "register" | null>(null);
+    const [modal, setModal] = useState<"login" | "register" | "verify" | null>(null);
+
+    const [verificationData, setVerificationData] = useState({
+        email: "",
+        verificationCode: "",
+    });
 
 
     const closeModal = () => setModal(null);
@@ -75,7 +81,19 @@ const Header = () => {
                     >
                         {modal === "register" && (
                             <Register
-                                onRegister={() => setModal("login")}
+                                onRegister={(email, verificationCode) => {
+                                    console.log("HEADER REGISTER CALLBACK");
+                                    console.log("email:", email);
+                                    console.log("verificationCode:", verificationCode);
+
+                                    setVerificationData({
+                                        email,
+                                        verificationCode,
+                                    });
+
+                                    setModal("verify");
+                                }}
+                                onLogin={() => setModal("login")}
                             />
                         )}
 
@@ -83,6 +101,14 @@ const Header = () => {
                             <Login
                                 onRegister={() => setModal("register")}
                                 onSuccess={closeModal}
+                            />
+                        )}
+
+                        {modal === "verify" && (
+                            <VerifyCode
+                                email={verificationData.email}
+                                verificationCode={verificationData.verificationCode}
+                                onClose={closeModal}
                             />
                         )}
                     </Modal>

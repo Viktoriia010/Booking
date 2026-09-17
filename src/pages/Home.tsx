@@ -9,12 +9,18 @@ import {useState} from "react";
 import Modal from "@/components/modal/Modal.tsx";
 import Login from "@/pages/Auth/Login.tsx";
 import Register from "@/pages/Auth/Register.tsx";
+import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
 
 //зробити вибір дат по календарю
 
 export default function Home() {
-    const [modal, setModal] = useState<"login" | "register" | null>(null);
-
+    const [modal, setModal] = useState<"login" | "register" | "verify" | null>(null);
+    const [verificationData, setVerificationData] = useState({
+        email: "",
+        verificationCode: "",
+    });
+    console.log("CURRENT MODAL:", modal);
+    console.log("VERIFICATION DATA:", verificationData);
     const closeModal = () => setModal(null);
 
     return (
@@ -192,7 +198,16 @@ className="w-10 h-10 cursor-pointer"
             >
                 {modal === "register" && (
                     <Register
-                        onRegister={() => setModal("login")}
+                        onRegister={(email, verificationCode) => {
+                            setVerificationData({
+                                email,
+                                verificationCode,
+                            });
+
+                            setModal("verify");
+                        }
+                        }
+                        onLogin={() => setModal("login")}
                     />
                 )}
 
@@ -200,6 +215,14 @@ className="w-10 h-10 cursor-pointer"
                     <Login
                         onRegister={() => setModal("register")}
                         onSuccess={closeModal}
+                    />
+                )}
+
+                {modal === "verify" && (
+                    <VerifyCode
+                        email={verificationData.email}
+                        verificationCode={verificationData.verificationCode}
+                        onClose={() => setModal(null)}
                     />
                 )}
             </Modal>

@@ -1,11 +1,12 @@
 import { useState, } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 // import Modal from "../../components/modal/Modal";
 import { apiFetch, readError } from "../../api";
 import {type SubmitHandler, useForm} from "react-hook-form";
 
 type RegisterPageProps = {
-    onRegister: () => void;
+    onRegister: (email: string, verificationCode: string) => void;
+    onLogin: () => void;
 };
 
 type RegisterFormData = {
@@ -15,8 +16,8 @@ type RegisterFormData = {
 };
 
 
-export const Register = ({ onRegister }: RegisterPageProps) => {
-    const navigate = useNavigate();
+export const Register = ({ onRegister, onLogin  }: RegisterPageProps) => {
+    // const navigate = useNavigate();
     //const [name, setName] = useState("");
     // const [email, setEmail] = useState("");
     // const [phone, setPhone] = useState("");
@@ -48,12 +49,14 @@ export const Register = ({ onRegister }: RegisterPageProps) => {
             if (!response.ok) throw new Error(await readError(response));
             const resp = await response.json();
 
-            navigate(`/verify?email=${encodeURIComponent(data.email)}`, {
-                state: { verificationCode: resp.verificationCode },
-            });
+
+            onRegister(data.email, resp.verificationCode);
+
+            // navigate(`/verify?email=${encodeURIComponent(data.email)}`, {
+            //     state: { verificationCode: resp.verificationCode },
+            // });
             //navigate("/account");
-            // onRegister();
-            alert('Реєстрація успішна! Тепер увійдіть у свій акаунт.');
+            // alert('Реєстрація успішна!');
         } catch (error) {
             setError(error instanceof Error ? error.message : "Registration failed");
             alert('Помилка реєстрації');
@@ -317,7 +320,7 @@ export const Register = ({ onRegister }: RegisterPageProps) => {
                 Already have an account?{' '}
                 <button
                     type="button"
-                    onClick={onRegister}
+                    onClick={onLogin}
                     className="font-medium text-[#581ADB] hover:underline cursor-pointer"
                 >
                     Sign In

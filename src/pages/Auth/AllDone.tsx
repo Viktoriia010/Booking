@@ -1,11 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import Modal from "../../components/modal/Modal";
 
 const AllDone = () => {
     const navigate = useNavigate();
 
     return (
-        <Modal open={true} onClose={() => navigate("/")}>
+        <div>
             <h2>All done</h2>
             <p>Your account has been created.</p>
 
@@ -23,7 +22,7 @@ const AllDone = () => {
             >
                 Return to booking
             </button>
-        </Modal>
+        </div>
     );
 };
 

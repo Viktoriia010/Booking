@@ -36,7 +36,7 @@ const Information = () => {
     };
 
     return (
-        <Modal open={true} onClose={() => navigate("/")}>
+        <Modal open={true} closeModal={() => navigate("/")}>
             <h2>Your information</h2>
             <form onSubmit={submit} className="auth-form">
                 <input value={country} onChange={event => setCountry(event.target.value)} placeholder="Country" />

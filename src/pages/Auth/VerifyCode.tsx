@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiFetch, readError } from "../../api";
 import { useAuth } from "../../context/useAuth";
 import {type SubmitHandler, useForm} from "react-hook-form";
@@ -14,6 +15,7 @@ type VerifyFormData = {
 };
 
 const VerifyCode = ({email, verificationCode, onClose }: VerifyCodeProps) => {
+    const navigate = useNavigate();
     const { login } = useAuth();
     const [error, setError] = useState("");
     const {register, handleSubmit, formState: {errors}} = useForm<VerifyFormData>();
@@ -40,8 +42,11 @@ const VerifyCode = ({email, verificationCode, onClose }: VerifyCodeProps) => {
             );
 
             onClose();
+            navigate("/account");
         } catch (error) {
             setError(error instanceof Error ? error.message : "Verification failed");
+        } finally {
+            setLoading(false);
         }
     };
 

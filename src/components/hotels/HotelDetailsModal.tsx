@@ -62,7 +62,7 @@ const HotelDetailsModal = ({ hotel, onClose }: Props) => {
     };
 
     return (
-        <Modal open={true} onClose={onClose}>
+        <Modal open={true} closeModal={onClose}>
             <h2>{currentHotel.name}</h2>
 
             {currentHotel.mainImageUrl ? (
@@ -200,9 +200,7 @@ const HotelDetailsModal = ({ hotel, onClose }: Props) => {
 
             <h3>Reviews</h3>
 
-            <ReviewList
-                reviews={currentHotel.reviews}
-            />
+            <ReviewList/>
 
             <div className="review-form">
                 <h3>Leave a review</h3>

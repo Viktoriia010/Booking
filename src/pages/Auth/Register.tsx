@@ -59,7 +59,6 @@ export const Register = ({ onRegister, onLogin  }: RegisterPageProps) => {
             // alert('Реєстрація успішна!');
         } catch (error) {
             setError(error instanceof Error ? error.message : "Registration failed");
-            alert('Помилка реєстрації');
         } finally {
             setLoading(false);
         }

@@ -1,17 +1,34 @@
 import Review from "@/components/reviews/Review.tsx";
-import reviews from "@/models/reviews.ts";
+import reviewsDefault from "@/models/reviews.ts";
+import Stars from "../modal/Stars";
+import type { Review as ReviewType } from "../../context/HotelsContext.types";
 
-const ReviewList = () => {
+type Props = {
+    reviews?: ReviewType[];
+};
+
+const ReviewList = ({ reviews }: Props) => {
+    if (reviews) {
+        if (reviews.length === 0) return <p>No reviews yet.</p>;
+        return (
+            <div className="review-list">
+                {reviews.map(review => (
+                    <div className="review" key={review.id}>
+                        <strong>{review.authorName}</strong>
+                        <Stars value={review.rating} />
+                        <p>{review.text}</p>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-row gap-9 overflow-x-auto scrollbar-hide">
-            {reviews.map((review) => (
-                <Review
-                    key={review.id}
-                    review={review}
-                />
+            {reviewsDefault.map((review) => (
+                <Review key={review.id} review={review} />
             ))}
-            </div>
-
+        </div>
     );
 };
 

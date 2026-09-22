@@ -10,17 +10,18 @@ import Modal from "@/components/modal/Modal.tsx";
 import Login from "@/pages/Auth/Login.tsx";
 import Register from "@/pages/Auth/Register.tsx";
 import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
+import Information from "@/pages/Auth/Information.tsx";
+import AllDone from "@/pages/Auth/AllDone.tsx";
 
 //зробити вибір дат по календарю
 
 export default function Home() {
-    const [modal, setModal] = useState<"login" | "register" | "verify" | null>(null);
+    const [modal, setModal] = useState<"login" | "register" | "verify" | "info" | "all-done" |null>(null);
     const [verificationData, setVerificationData] = useState({
         email: "",
         verificationCode: "",
     });
-    console.log("CURRENT MODAL:", modal);
-    console.log("VERIFICATION DATA:", verificationData);
+
     const closeModal = () => setModal(null);
 
     return (
@@ -222,7 +223,17 @@ className="w-10 h-10 cursor-pointer"
                     <VerifyCode
                         email={verificationData.email}
                         verificationCode={verificationData.verificationCode}
-                        onClose={() => setModal(null)}
+                        onSuccess={() => setModal("info")}
+                    />
+                )}
+                {modal === "info" && (
+                    <Information
+                        onSuccess={() => setModal("all-done")}
+                    />
+                )}
+                {modal === "all-done" && (
+                    <AllDone
+                        onClose={closeModal}
                     />
                 )}
             </Modal>

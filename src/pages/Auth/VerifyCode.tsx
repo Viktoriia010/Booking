@@ -6,14 +6,14 @@ import {type SubmitHandler, useForm} from "react-hook-form";
 type VerifyCodeProps = {
     email: string;
     verificationCode: string;
-    onClose: () => void;
+    onSuccess: () => void;
 };
 
 type VerifyFormData = {
     code: string;
 };
 
-const VerifyCode = ({email, verificationCode, onClose }: VerifyCodeProps) => {
+const VerifyCode = ({email, verificationCode, onSuccess }: VerifyCodeProps) => {
     const { login } = useAuth();
     const [error, setError] = useState("");
     const {register, handleSubmit, formState: {errors}} = useForm<VerifyFormData>();
@@ -39,7 +39,7 @@ const VerifyCode = ({email, verificationCode, onClose }: VerifyCodeProps) => {
                 resp.refreshToken
             );
 
-            onClose();
+            onSuccess();
         } catch (error) {
             setError(error instanceof Error ? error.message : "Verification failed");
         }

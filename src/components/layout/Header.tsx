@@ -9,7 +9,7 @@ import Login from "@/pages/Auth/Login.tsx";
 import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
 
 const Header = () => {
-    const { isAuth } = useAuth();
+    const { isAuth, user } = useAuth();
     const [modal, setModal] = useState<"login" | "register" | "verify" | null>(null);
 
     const [verificationData, setVerificationData] = useState({
@@ -36,21 +36,14 @@ const Header = () => {
                     />
 
                     {isAuth ? (
-                            <NavLink
-                                to="/account"
-                            >
-                                <button
-                                    className="flex cursor-pointer items-center gap-1.5 rounded-[30px] border border-[#DDDDDD] py-1.5 pl-3 pr-1.5 text-sm sm:gap-2 sm:pl-4 sm:text-[16px]"
-                                >
-                                    <span>Account</span>
-                                    <img
-                                        src="/profile-icon.svg"
-                                        alt="Profile icon"
-                                        className="h-5 w-5 sm:h-6 sm:w-6"
-                                    />
-                                </button>
-                            </NavLink>
-
+                        <NavLink to="/account">
+                            <button className="flex cursor-pointer items-center gap-1.5 rounded-[30px] border border-[#DDDDDD] py-1.5 pl-3 pr-1.5 text-sm sm:gap-2 sm:pl-4 sm:text-[16px]">
+            <span className="max-w-[120px] truncate">
+                {user?.name || user?.email?.split("@")[0] || "Account"}
+            </span>
+                                <img src="/profile-icon.svg" alt="Profile icon" className="h-5 w-5 sm:h-6 sm:w-6" />
+                            </button>
+                        </NavLink>
                     ) : (
                         <>
                             <button

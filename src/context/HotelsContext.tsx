@@ -7,12 +7,13 @@ import {
 import { apiFetch, readError } from "../api";
 
 export function HotelsProvider({
-                                   children,
-                               }: {
+    children,
+}: {
     children: React.ReactNode;
 }) {
     const [hotels, setHotels] = useState<Hotel[]>([]);
-    const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
+    const [selectedHotel, setSelectedHotel] =
+        useState<Hotel | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -100,19 +101,61 @@ export function HotelsProvider({
             throw new Error(await readError(response));
         }
 
-        const updatedHotel = await loadHotel(hotelId);
+        const review = await response.json();
 
-        if (updatedHotel) {
-            setHotels(current =>
-                current.map(hotel =>
-                    hotel.id === hotelId
-                        ? updatedHotel
-                        : hotel
-                )
+        setHotels(current =>
+            current.map(hotel => {
+                if (hotel.id !== hotelId) {
+                    return hotel;
+                }
+
+                const reviews = [
+                    ...hotel.reviews,
+                    review,
+                ];
+
+                const totalRating = reviews.reduce(
+                    (sum, item) => sum + item.rating,
+                    0
+                );
+
+                return {
+                    ...hotel,
+                    reviews,
+                    reviewsCount: reviews.length,
+                    rating:
+                        reviews.length > 0
+                            ? totalRating / reviews.length
+                            : 0,
+                };
+            })
+        );
+
+        setSelectedHotel(current => {
+            if (!current || current.id !== hotelId) {
+                return current;
+            }
+
+            const reviews = [
+                ...current.reviews,
+                review,
+            ];
+
+            const totalRating = reviews.reduce(
+                (sum, item) => sum + item.rating,
+                0
             );
 
-            setSelectedHotel(updatedHotel);
-        }
+            return {
+                ...current,
+                reviews,
+                reviewsCount: reviews.length,
+                rating:
+                    reviews.length > 0
+                        ? totalRating / reviews.length
+                        : 0,
+            };
+        });
     };
 
     return (

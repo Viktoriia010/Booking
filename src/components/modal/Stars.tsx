@@ -9,23 +9,27 @@ const Stars = ({ value, onChange }: StarsProps) => {
             return;
         }
 
-        if (star === value) {
-            onChange(0);
-            return;
-        }
-
         onChange(star);
     };
 
     return (
-        <div className="stars">
+        <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
                 <button
                     key={star}
                     type="button"
-                    className={star <= value ? "star active" : "star"}
+                    className={`text-xl leading-none transition ${
+                        onChange
+                            ? "cursor-pointer hover:scale-110"
+                            : "cursor-default"
+                    } ${
+                        star <= value
+                            ? "text-[#581ADB]"
+                            : "text-gray-300"
+                    }`}
                     onClick={() => clickStar(star)}
                     disabled={!onChange}
+                    aria-label={`${star} stars`}
                 >
                     {star <= value ? "★" : "☆"}
                 </button>

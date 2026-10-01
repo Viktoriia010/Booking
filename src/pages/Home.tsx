@@ -8,9 +8,10 @@ import Login from "@/pages/Auth/Login.tsx";
 import Register from "@/pages/Auth/Register.tsx";
 import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
 import { useHotels } from "@/hooks/useHotels.ts";
+import SearchForm from "@/components/hotels/SearchForm.tsx";
 import HotelCard from "@/components/hotels/HotelCard.tsx";
 import HotelDetailsModal from "@/components/hotels/HotelDetailsModal.tsx";
-import type { Hotel } from "@/context/HotelsContext.types.ts";
+import type { Hotel, SearchData } from "@/context/HotelsContext.types.ts";
 
 export default function Home() {
     const {
@@ -37,6 +38,10 @@ export default function Home() {
         void loadHotels();
     }, []);
 
+    const search = async (data: SearchData) => {
+        await loadHotels(data);
+    };
+
     const closeModal = () => setModal(null);
 
     return (
@@ -48,92 +53,8 @@ export default function Home() {
                     className="absolute inset-0 h-full w-full object-cover"
                 />
 
-                <div className="absolute bottom-0 left-1/2 z-10 hidden w-full max-w-5xl -translate-x-1/2 translate-y-1/2 px-4 sm:block">
-                    <div className="flex h-14 w-full rounded-[60px] bg-white p-2 shadow-md">
-                        <div className="flex flex-1 items-center justify-center gap-3 border-r-2 border-gray-200 p-2">
-                            <img
-                                src="/plane.svg"
-                                alt=""
-                                className="h-5 w-5"
-                            />
-
-                            <input
-                                type="text"
-                                placeholder="Where are you going?"
-                                className="w-full bg-transparent text-[14px] text-black outline-none placeholder:text-black"
-                            />
-                        </div>
-
-                        <button
-                            type="button"
-                            className="flex flex-1 cursor-pointer items-center justify-center gap-3 border-r-2 border-gray-200 p-2"
-                        >
-                            <img
-                                src="/calendar.svg"
-                                alt=""
-                                className="h-5 w-5"
-                            />
-
-                            <p className="text-[14px] text-black">
-                                Check in - Check out
-                            </p>
-                        </button>
-
-                        <button
-                            type="button"
-                            className="flex flex-1 cursor-pointer items-center justify-center gap-3"
-                        >
-                            <img
-                                src="/peoples.svg"
-                                alt=""
-                                className="h-5 w-5"
-                            />
-
-                            <p className="text-[14px] text-black">
-                                Guests
-                            </p>
-
-                            <img
-                                src="/arrows.svg"
-                                alt=""
-                                className="h-4 w-4"
-                            />
-                        </button>
-
-                        <button
-                            type="button"
-                            aria-label="Search"
-                            className="cursor-pointer"
-                        >
-                            <img
-                                src="/search.svg"
-                                alt=""
-                                className="h-10 w-10"
-                            />
-                        </button>
-                    </div>
-                </div>
-
-                <div className="absolute bottom-0 left-1/2 z-10 w-full -translate-x-1/2 translate-y-1/2 px-4 sm:hidden">
-                    <div className="flex h-14 w-full items-center gap-3 rounded-[60px] bg-white pl-5 pr-2 shadow-xl">
-                        <div className="flex h-14 w-full items-center gap-3">
-                            <img
-                                src="/plane.svg"
-                                alt=""
-                                className="h-5 w-5"
-                            />
-
-                            <p className="text-[14px] text-black">
-                                Where are you going?
-                            </p>
-                        </div>
-
-                        <img
-                            src="/setting4.svg"
-                            alt=""
-                            className="h-10 w-10 cursor-pointer"
-                        />
-                    </div>
+                <div className="absolute bottom-0 left-1/2 z-10 w-full -translate-x-1/2 translate-y-1/2 px-4">
+                    <SearchForm onSearch={search} />
                 </div>
             </section>
 

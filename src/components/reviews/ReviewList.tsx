@@ -9,14 +9,42 @@ type Props = {
 
 const ReviewList = ({ reviews }: Props) => {
     if (reviews) {
-        if (reviews.length === 0) return <p>No reviews yet.</p>;
+        if (reviews.length === 0) {
+            return (
+                <p className="text-sm text-gray-500">
+                    No reviews yet.
+                </p>
+            );
+        }
+
         return (
-            <div className="review-list">
-                {reviews.map(review => (
-                    <div className="review" key={review.id}>
-                        <strong>{review.authorName}</strong>
-                        <Stars value={review.rating} />
-                        <p>{review.text}</p>
+            <div className="space-y-4">
+                {reviews.map((review) => (
+                    <div
+                        className="rounded-xl border border-[#E5E5E5] p-4"
+                        key={review.id}
+                    >
+                        <div className="flex items-center justify-between gap-3">
+                            <strong>
+                                {review.authorName}
+                            </strong>
+
+                            <Stars
+                                value={review.rating}
+                            />
+                        </div>
+
+                        <p className="mt-2 text-sm leading-6 text-[#303030]">
+                            {review.text}
+                        </p>
+
+                        {review.createdAt && (
+                            <p className="mt-2 text-xs text-gray-400">
+                                {new Date(
+                                    review.createdAt
+                                ).toLocaleDateString()}
+                            </p>
+                        )}
                     </div>
                 ))}
             </div>
@@ -26,33 +54,13 @@ const ReviewList = ({ reviews }: Props) => {
     return (
         <div className="flex flex-row gap-9 overflow-x-auto scrollbar-hide">
             {reviewsDefault.map((review) => (
-                <Review key={review.id} review={review} />
+                <Review
+                    key={review.id}
+                    review={review}
+                />
             ))}
         </div>
     );
 };
 
 export default ReviewList;
-
-// import type { Review } from "../../context/HotelsContext.types";
-// import Stars from "../modal/Stars";
-//
-// const ReviewList = ({ reviews }: { reviews: Review[] }) => {
-//     if (reviews.length === 0) {
-//         return <p>No reviews yet.</p>;
-//     }
-//
-//     return (
-//         <div className="review-list">
-//             {reviews.map(review => (
-//                 <div className="review" key={review.id}>
-//                     <strong>{review.authorName}</strong>
-//                     <Stars value={review.rating} />
-//                     <p>{review.text}</p>
-//                 </div>
-//             ))}
-//         </div>
-//     );
-// };
-//
-// export default ReviewList;

@@ -15,31 +15,44 @@ type BookedUser = {
     email: string;
 };
 
-const HotelCard = ({ hotel, onChoose }: HotelCardProps) => {
+const getBookedUsers = (hotelId: string): BookedUser[] => {
+    const saved = JSON.parse(
+        localStorage.getItem("hotel_booked_users") || "[]"
+    ) as BookedUser[];
+
+    return saved.filter(
+        (item) => item.hotelId === hotelId
+    );
+};
+
+const HotelCard = ({
+                       hotel,
+                       onChoose,
+                   }: HotelCardProps) => {
     const [imageError, setImageError] = useState(false);
-    const [bookedUsers, setBookedUsers] = useState<BookedUser[]>([]);
 
-    const loadBookedUsers = () => {
-        const saved = JSON.parse(
-            localStorage.getItem("hotel_booked_users") || "[]"
-        ) as BookedUser[];
-
-        setBookedUsers(
-            saved.filter(item => item.hotelId === hotel.id)
+    const [bookedUsers, setBookedUsers] =
+        useState<BookedUser[]>(() =>
+            getBookedUsers(hotel.id)
         );
-    };
 
     useEffect(() => {
-        loadBookedUsers();
-
         const update = () => {
-            loadBookedUsers();
+            setBookedUsers(
+                getBookedUsers(hotel.id)
+            );
         };
 
-        window.addEventListener("booking-updated", update);
+        window.addEventListener(
+            "booking-updated",
+            update
+        );
 
         return () => {
-            window.removeEventListener("booking-updated", update);
+            window.removeEventListener(
+                "booking-updated",
+                update
+            );
         };
     }, [hotel.id]);
 
@@ -66,7 +79,10 @@ const HotelCard = ({ hotel, onChoose }: HotelCardProps) => {
                 </p>
 
                 <div className="hotel-card__rating">
-                    <Stars value={hotel.rating} />
+                    <Stars
+                        value={Math.round(hotel.rating)}
+                        onChange={() => onChoose(hotel)}
+                    />
 
                     <span>
                         {hotel.rating > 0
@@ -87,7 +103,7 @@ const HotelCard = ({ hotel, onChoose }: HotelCardProps) => {
                     <p>
                         Booked by:{" "}
                         {bookedUsers
-                            .map(item => item.name)
+                            .map((item) => item.name)
                             .join(", ")}
                     </p>
                 )}
@@ -98,7 +114,10 @@ const HotelCard = ({ hotel, onChoose }: HotelCardProps) => {
                         {hotel.rooms.length > 0
                             ? Math.min(
                                 ...hotel.rooms.map(
-                                    x => Number(x.pricePerNight)
+                                    (x) =>
+                                        Number(
+                                            x.pricePerNight
+                                        )
                                 )
                             )
                             : 0}{" "}
@@ -108,7 +127,9 @@ const HotelCard = ({ hotel, onChoose }: HotelCardProps) => {
                     <button
                         type="button"
                         className="button"
-                        onClick={() => onChoose(hotel)}
+                        onClick={() =>
+                            onChoose(hotel)
+                        }
                     >
                         Choose
                     </button>

@@ -1,16 +1,9 @@
 import type { ReviewType } from "@/types/ReviewType.ts";
+import {getDaysAgo} from "@/utils/date.ts";
 
-//достилізувати
 
 const Review = ({ review }: { review: ReviewType }) => {
-    const getDaysAgo = (date: Date) => {
-        const now = new Date();
-        const difference = now.getTime() - date.getTime();
 
-        return Math.floor(
-            difference / (1000 * 60 * 60 * 24)
-        );
-    };
 
     return (
         <div className="h-[208px] w-[368px] min-w-[368px] rounded-[13px] border border-[#94D0B4] bg-white px-6 py-5 text-[15px] shadow-[0_4px_15px_rgba(0,0,0,0.06)] font-['Nunito_Sans'] lg:w-full lg:min-w-0">
@@ -35,7 +28,7 @@ const Review = ({ review }: { review: ReviewType }) => {
                 </div>
 
                 <p className="text-[#717171]">
-                    {getDaysAgo(review.date)} days ago
+                    {getDaysAgo(review.date)}
                 </p>
             </div>
 

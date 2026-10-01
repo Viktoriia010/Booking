@@ -5,6 +5,7 @@ import { useAuth } from "../context/useAuth";
 
 type AccountData = {
     name: string;
+    avatarUrl: string | null;
     phone: string;
     country: string;
     city: string;
@@ -20,12 +21,16 @@ const inputClass =
 
 const AccountPage = () => {
     const navigate = useNavigate();
+
+
+
     const { isAuth, user, logout } = useAuth();
     const [data, setData] = useState<AccountData>({
         name: user?.name || "",
         phone: user?.phone || "",
         country: "",
         city: "",
+        avatarUrl: null,
         travelPurpose: "",
         travelingWithPet: false,
     });
@@ -36,7 +41,9 @@ const AccountPage = () => {
     const [expirationDate, setExpirationDate] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(true);
-
+    const avatarUrl = data.avatarUrl
+        ? `${import.meta.env.VITE_PATH_TO_SERVER}${data.avatarUrl.replace(/^\//, "")}`
+        : null;
     useEffect(() => {
         if (!isAuth) {
             navigate("/");
@@ -107,14 +114,30 @@ const AccountPage = () => {
         <div className="mx-auto max-w-4xl px-4 py-10 font-['Nunito_Sans']">
             {/* Header */}
             <div className="mb-10 flex items-center justify-between border-b border-[#EEEEEE] pb-6">
-                <div>
-                    <h1 className="text-[28px] font-extrabold text-[#581ADB]">
-                        My Account
-                    </h1>
-                    <p className="mt-1 text-sm text-neutral-500">
-                        {user?.email}
-                    </p>
+                <div className="flex items-center gap-4">
+                    {avatarUrl ? (
+                        <img
+                            src={avatarUrl}
+                            alt={data.name || "Avatar"}
+                            className="h-14 w-14 rounded-full object-cover"
+                        />
+                    ) : (
+                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-lg font-bold text-[#581ADB]">
+                            {data.name?.charAt(0).toUpperCase() || "U"}
+                        </div>
+                    )}
+
+                    <div>
+                        <h1 className="text-[28px] font-extrabold text-[#581ADB]">
+                            My Account
+                        </h1>
+
+                        <p className="mt-1 text-sm text-neutral-500">
+                            {user?.email}
+                        </p>
+                    </div>
                 </div>
+
                 <button
                     type="button"
                     onClick={handleLogout}

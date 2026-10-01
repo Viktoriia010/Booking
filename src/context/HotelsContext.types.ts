@@ -15,6 +15,7 @@ export type Review = {
     id: string;
     hotelId: string;
     authorName: string;
+    authorAvatarUrl?: string;
     rating: number;
     text: string;
     createdAt?: string;
@@ -23,6 +24,7 @@ export type Review = {
 export type Hotel = {
     id: string;
     name: string;
+    address: string;
     city: string;
     country: string;
     description: string;
@@ -51,6 +53,8 @@ export type HotelsContextType = {
     setSelectedHotel: React.Dispatch<
         React.SetStateAction<Hotel | null>
     >;
+    searchData: SearchData | null;
+
     loading: boolean;
     error: string;
     loadHotels: (searchData?: SearchData) => Promise<void>;

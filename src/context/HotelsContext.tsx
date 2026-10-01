@@ -15,10 +15,14 @@ export function HotelsProvider({
     const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [searchData, setSearchData] =  useState<SearchData | null>(null);
 
     const loadHotels = async (searchData?: SearchData) => {
         setLoading(true);
         setError("");
+        if (searchData) {
+            setSearchData(searchData);
+        }
 
         try {
             const params = new URLSearchParams();
@@ -123,6 +127,7 @@ export function HotelsProvider({
                 setSelectedHotel,
                 loading,
                 error,
+                searchData,
                 loadHotels,
                 loadHotel,
                 addReview,

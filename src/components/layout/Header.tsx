@@ -23,11 +23,11 @@ const Header = () => {
     return (
         <header className="border-b border-[#EEEEEE] bg-white">
             <div className="mx-auto flex h-[64px] w-full items-center justify-between px-4 sm:h-[80px] sm:px-6">
-
+                <NavLink to="/">
                 <span className="text-lg font-bold sm:text-2xl">
                     Hotel for <span className="text-[#581ADB]">you.</span>
                 </span>
-
+                </NavLink>
                 <div className="flex items-center gap-2 sm:gap-4">
                     <img
                         src="/uk-lang.svg"

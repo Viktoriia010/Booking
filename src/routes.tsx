@@ -115,6 +115,7 @@ import Home from "@/pages/Home.tsx";
 // import {DashboardPage} from "@/pages/DashboardPage.tsx";
 import {ProtectedRoute} from "@/components/ProtectedRoute.tsx";
 import AccountPage from "@/pages/AccountPage.tsx";
+import HotelPage from "@/pages/HotelPage.tsx";
 
 export const routes = createBrowserRouter([
     {
@@ -123,11 +124,6 @@ export const routes = createBrowserRouter([
 
         children: [
             {
-                // path: "products",
-                // element: <Products />,
-                // loader: productsLoader,
-
-                // Компонент, який показується при помилці loader
                 errorElement: <ErrorPage />,
             },
             {
@@ -141,11 +137,18 @@ export const routes = createBrowserRouter([
                         path: 'account',
                         element: <AccountPage />
                     }
-                    // {
-                    //     path: 'dashboard',
-                    //     element: <DashboardPage />,
-                    // },
                 ],
+            },
+            {
+                path: `hotel/:id`,
+                Component: HotelPage,
+            },
+            {
+                path: "booking/:roomId",
+                lazy: () =>
+                    import("./pages/Booking/BookingPage").then(module => ({
+                        Component: module.default,
+                    })),
             },
         ],
     },

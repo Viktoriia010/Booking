@@ -13,9 +13,16 @@ type Props = {
     onClose: () => void;
 };
 
+type BookedUser = {
+    hotelId: string;
+    userId: string;
+    name: string;
+    email: string;
+};
+
 const HotelDetailsModal = ({ hotel, onClose }: Props) => {
     const navigate = useNavigate();
-    const { isAuth } = useAuth();
+    const { isAuth, user } = useAuth();
     const { hotels, addReview } = useHotels();
 
     const [rating, setRating] = useState(0);
@@ -29,6 +36,20 @@ const HotelDetailsModal = ({ hotel, onClose }: Props) => {
     const currentHotel =
         hotels.find(x => x.id === hotel.id) || hotel;
 
+    const savedBookedUsers = JSON.parse(
+        localStorage.getItem("hotel_booked_users") || "[]"
+    ) as BookedUser[];
+
+    const bookedUsers = savedBookedUsers.filter(
+        item => item.hotelId === currentHotel.id
+    );
+
+    const currentUserId = user?.id || user?.email || "";
+
+    const alreadyBooked = bookedUsers.some(
+        item => item.userId === currentUserId
+    );
+
     const sendReview = async () => {
         if (!isAuth) {
             navigate("/login");
@@ -36,9 +57,7 @@ const HotelDetailsModal = ({ hotel, onClose }: Props) => {
         }
 
         if (rating === 0 || !text.trim()) {
-            setMessage(
-                "Choose a rating and write a comment."
-            );
+            setMessage("Choose a rating and write a comment.");
             return;
         }
 
@@ -61,186 +80,228 @@ const HotelDetailsModal = ({ hotel, onClose }: Props) => {
         }
     };
 
+    const openBooking = (roomId: string) => {
+        if (!isAuth) {
+            navigate("/login");
+            return;
+        }
+
+        if (alreadyBooked) {
+            setMessage(
+                "You have already booked this hotel."
+            );
+            return;
+        }
+
+        onClose();
+
+        navigate(`/booking/${roomId}`);
+    };
+
     return (
         <Modal open={true} closeModal={onClose}>
-            <h2>{currentHotel.name}</h2>
+            <div className="max-h-[85vh] overflow-y-auto p-6">
+                <h2>{currentHotel.name}</h2>
 
-            {currentHotel.mainImageUrl ? (
-                <img
-                    className="hotel-details__image"
-                    src={getImageUrl(
-                        currentHotel.mainImageUrl
-                    )}
-                    alt={currentHotel.name}
+                {currentHotel.mainImageUrl ? (
+                    <img
+                        className="hotel-details__image"
+                        src={getImageUrl(
+                            currentHotel.mainImageUrl
+                        )}
+                        alt={currentHotel.name}
+                    />
+                ) : (
+                    <p>No hotel image.</p>
+                )}
+
+                <p>
+                    {currentHotel.city},{" "}
+                    {currentHotel.country}
+                </p>
+
+                <Stars
+                    value={Math.round(currentHotel.rating)}
                 />
-            ) : (
-                <p>No hotel image.</p>
-            )}
 
-            <p>
-                {currentHotel.city},{" "}
-                {currentHotel.country}
-            </p>
+                <p>
+                    Rating:{" "}
+                    {currentHotel.rating > 0
+                        ? currentHotel.rating.toFixed(1)
+                        : "No rating"}{" "}
+                    ({currentHotel.reviewsCount})
+                </p>
 
-            <Stars
-                value={Math.round(currentHotel.rating)}
-            />
+                <h3>Description</h3>
 
-            <p>
-                Rating:{" "}
-                {currentHotel.rating > 0
-                    ? currentHotel.rating.toFixed(1)
-                    : "No rating"}{" "}
-                ({currentHotel.reviewsCount})
-            </p>
+                <p>
+                    {currentHotel.description ||
+                        "No description."}
+                </p>
 
-            <h3>Description</h3>
+                <h3>Amenities</h3>
 
-            <p>
-                {currentHotel.description ||
-                    "No description."}
-            </p>
+                <p>
+                    {currentHotel.amenities.length
+                        ? currentHotel.amenities.join(", ")
+                        : "No amenities."}
+                </p>
 
-            <h3>Amenities</h3>
+                <p>
+                    Wi-Fi:{" "}
+                    {currentHotel.hasWifi === true
+                        ? "Yes"
+                        : currentHotel.hasWifi === false
+                            ? "No"
+                            : "Not specified"}
+                </p>
 
-            <p>
-                {currentHotel.amenities.length
-                    ? currentHotel.amenities.join(", ")
-                    : "No amenities."}
-            </p>
+                {currentHotel.images.length > 1 && (
+                    <div className="hotel-gallery">
+                        {currentHotel.images.map(image => (
+                            <img
+                                key={image}
+                                src={getImageUrl(image)}
+                                alt={currentHotel.name}
+                            />
+                        ))}
+                    </div>
+                )}
 
-            <p>
-                Wi-Fi:{" "}
-                {currentHotel.hasWifi === true
-                    ? "Yes"
-                    : currentHotel.hasWifi === false
-                        ? "No"
-                        : "Not specified"}
-            </p>
-
-            {currentHotel.images.length > 1 && (
-                <div className="hotel-gallery">
-                    {currentHotel.images.map(image => (
-                        <img
-                            key={image}
-                            src={getImageUrl(image)}
-                            alt={currentHotel.name}
-                        />
-                    ))}
-                </div>
-            )}
-
-            <h3>Rooms</h3>
-
-            {currentHotel.rooms.length === 0 ? (
-                <p>No rooms.</p>
-            ) : (
-                <div className="rooms-list">
-                    {currentHotel.rooms.map(room => (
-                        <div
-                            className="room-card"
-                            key={room.id}
-                        >
-                            {room.imageUrl ? (
-                                <img
-                                    className="room-card__image"
-                                    src={getImageUrl(
-                                        room.imageUrl
-                                    )}
-                                    alt={room.title}
-                                />
-                            ) : (
-                                <div className="room-card__image room-card__image--empty">
-                                    No image
-                                </div>
-                            )}
-
-                            <div className="room-card__content">
-                                <h4>{room.title}</h4>
-
-                                <p>
-                                    Bed: {room.bedType}
-                                </p>
-
-                                <p>
-                                    Capacity: {room.capacity}
-                                </p>
-
-                                <p>
-                                    Price:{" "}
-                                    {room.pricePerNight}{" "}
-                                    / night
-                                </p>
-
-                                <p>
-                                    {room.isAvailable
-                                        ? "Available"
-                                        : "Not available"}
-                                </p>
-
-                                {room.isAvailable && (
-                                    <button
-                                        type="button"
-                                        className="button"
-                                        onClick={() => {
-                                            onClose();
-                                            navigate(
-                                                `/booking/${room.id}`
-                                            );
-                                        }}
-                                    >
-                                        Book
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            <h3>Reviews</h3>
-
-            <ReviewList/>
-
-            <div className="review-form">
-                <h3>Leave a review</h3>
-
-                {isAuth ? (
+                {bookedUsers.length > 0 && (
                     <>
-                        <Stars
-                            value={rating}
-                            onChange={setRating}
-                        />
+                        <h3>Booked by</h3>
 
-                        <textarea
-                            value={text}
-                            onChange={event =>
-                                setText(event.target.value)
-                            }
-                            placeholder="Your comment"
-                        />
+                        <div className="space-y-1">
+                            {bookedUsers.map(item => (
+                                <p key={`${item.hotelId}-${item.userId}`}>
+                                    {item.name}
+                                </p>
+                            ))}
+                        </div>
+                    </>
+                )}
 
+                {alreadyBooked && (
+                    <p className="mt-3 text-sm font-bold text-[#581ADB]">
+                        You have already booked this hotel.
+                    </p>
+                )}
+
+                <h3>Rooms</h3>
+
+                {currentHotel.rooms.length === 0 ? (
+                    <p>No rooms.</p>
+                ) : (
+                    <div className="rooms-list">
+                        {currentHotel.rooms.map(room => (
+                            <div
+                                className="room-card"
+                                key={room.id}
+                            >
+                                {room.imageUrl ? (
+                                    <img
+                                        className="room-card__image"
+                                        src={getImageUrl(
+                                            room.imageUrl
+                                        )}
+                                        alt={room.title}
+                                    />
+                                ) : (
+                                    <div className="room-card__image room-card__image--empty">
+                                        No image
+                                    </div>
+                                )}
+
+                                <div className="room-card__content">
+                                    <h4>{room.title}</h4>
+
+                                    <p>
+                                        Bed: {room.bedType}
+                                    </p>
+
+                                    <p>
+                                        Capacity: {room.capacity}
+                                    </p>
+
+                                    <p>
+                                        Price:{" "}
+                                        {room.pricePerNight}{" "}
+                                        / night
+                                    </p>
+
+                                    <p>
+                                        {room.isAvailable
+                                            ? "Available"
+                                            : "Not available"}
+                                    </p>
+
+                                    {room.isAvailable && (
+                                        <button
+                                            type="button"
+                                            className="button"
+                                            disabled={alreadyBooked}
+                                            onClick={() =>
+                                                openBooking(room.id)
+                                            }
+                                        >
+                                            {alreadyBooked
+                                                ? "Already booked"
+                                                : "Book"}
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <h3>Reviews</h3>
+
+                <ReviewList />
+
+                <div className="review-form">
+                    <h3>Leave a review</h3>
+
+                    {isAuth ? (
+                        <>
+                            <Stars
+                                value={rating}
+                                onChange={setRating}
+                            />
+
+                            <textarea
+                                value={text}
+                                onChange={event =>
+                                    setText(event.target.value)
+                                }
+                                placeholder="Your comment"
+                            />
+
+                            <button
+                                type="button"
+                                className="button"
+                                onClick={sendReview}
+                            >
+                                Send
+                            </button>
+                        </>
+                    ) : (
                         <button
                             type="button"
                             className="button"
-                            onClick={sendReview}
+                            onClick={() =>
+                                navigate("/login")
+                            }
                         >
-                            Send
+                            Sign in to review
                         </button>
-                    </>
-                ) : (
-                    <button
-                        type="button"
-                        className="button"
-                        onClick={() =>
-                            navigate("/login")
-                        }
-                    >
-                        Sign in to review
-                    </button>
-                )}
+                    )}
 
-                {message && <p>{message}</p>}
+                    {message && (
+                        <p>{message}</p>
+                    )}
+                </div>
             </div>
         </Modal>
     );

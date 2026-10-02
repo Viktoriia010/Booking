@@ -17,6 +17,12 @@ export type Review = {
     authorName: string;
     authorAvatarUrl?: string;
     rating: number;
+    facilities: number;
+    staff: number;
+    cleanliness: number;
+    comfort: number;
+    location: number;
+    valueForMoney: number;
     text: string;
     createdAt?: string;
 };
@@ -30,6 +36,12 @@ export type Hotel = {
     description: string;
     rating: number;
     reviewsCount: number;
+    facilities: number;
+    staff: number;
+    cleanliness: number;
+    comfort: number;
+    location: number;
+    valueForMoney: number;
     mainImageUrl: string;
     images: string[];
     amenities: string[];
@@ -61,7 +73,12 @@ export type HotelsContextType = {
     loadHotel: (id: string) => Promise<Hotel | null>;
     addReview: (
         hotelId: string,
-        rating: number,
+        facilities: number,
+        staff: number,
+        cleanliness: number,
+        comfort: number,
+        location: number,
+        valueForMoney: number,
         text: string
     ) => Promise<void>;
 };

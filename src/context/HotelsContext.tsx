@@ -88,14 +88,24 @@ export function HotelsProvider({
 
     const addReview = async (
         hotelId: string,
-        rating: number,
+        facilities: number,
+        staff: number,
+        cleanliness: number,
+        comfort: number,
+        location: number,
+        valueForMoney: number,
         text: string
     ) => {
         const response = await apiFetch("/Review", {
             method: "POST",
             body: JSON.stringify({
                 hotelId,
-                rating,
+                facilities,
+                staff,
+                cleanliness,
+                comfort,
+                location,
+                valueForMoney,
                 text,
             }),
         });
@@ -107,8 +117,8 @@ export function HotelsProvider({
         const updatedHotel = await loadHotel(hotelId);
 
         if (updatedHotel) {
-            setHotels(current =>
-                current.map(hotel =>
+            setHotels((current) =>
+                current.map((hotel) =>
                     hotel.id === hotelId
                         ? updatedHotel
                         : hotel

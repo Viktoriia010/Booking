@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getDaysAgo } from "../utils/date";
 import { getImageUrl } from "../api";
 import type { Hotel } from "../context/HotelsContext.types";
 import { useHotels } from "../hooks/useHotels.ts";
 import { useAuth } from "../context/useAuth";
 
 import starRating from "@/assets/star-rounded.svg";
+import ReviewList from "@/components/reviews/ReviewList.tsx";
+import Review from "@/components/reviews/Review.tsx";
+import RatingItem from "@/components/reviews/RatingItem.tsx";
+import RoomCard from "@/components/room/RoomCard.tsx";
+import ReviewForm from "@/components/reviews/ReviewForm.tsx";
 
 const HotelPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { loadHotel, addReview,searchData } = useHotels();
+    const { loadHotel,searchData } = useHotels();
     const { isAuth } = useAuth();
 
     const [hotel, setHotel] = useState<Hotel | null>(null);
-    const [rating, setRating] = useState(0);
-    const [text, setText] = useState("");
-    const [message, setMessage] = useState("");
+
 
     useEffect(() => {
         if (!id) return;
@@ -43,35 +45,6 @@ const HotelPage = () => {
             </div>
         );
     }
-
-    const submitReview = async () => {
-        if (!isAuth) {
-            navigate("/login");
-            return;
-        }
-
-        if (rating === 0 || !text.trim()) {
-            setMessage("Choose a rating and write a comment.");
-            return;
-        }
-
-        try {
-            await addReview(hotel.id, rating, text.trim());
-
-            const updated = await loadHotel(hotel.id);
-
-            setHotel(updated);
-            setRating(0);
-            setText("");
-            setMessage("Review added.");
-        } catch (error) {
-            setMessage(
-                error instanceof Error
-                    ? error.message
-                    : "Could not add review."
-            );
-        }
-    };
 
     return (
         <div className="relative min-h-screen bg-white text-[#333]">
@@ -488,52 +461,226 @@ const HotelPage = () => {
                                 ))}
                         </div>
 
-
+                        <hr className="border-[#DDDDDD] mt-6" />
                         {/* REVIEW PREVIEW */}
 
                         {hotel.reviews.length > 0 && (
-                            <div className="mt-5 rounded-xl border border-gray-100 bg-white p-4">
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-
-                                        {hotel.reviews[0].authorAvatarUrl ? (
-                                            <img
-                                                src={getImageUrl(hotel.reviews[0].authorAvatarUrl)}
-                                                alt={hotel.reviews[0].authorName}
-                                                className="h-9 w-9 rounded-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="h-9 w-9 rounded-full bg-gray-200" />
-                                        )}
-
-                                        <div>
-                                            <p className="text-[11px] font-semibold">
-                                                {hotel.reviews[0].authorName}
-                                            </p>
-
-                                            <p className="text-[10px] text-gray-400">
-                                                {hotel.name}
-                                            </p>
-                                        </div>
-
-                                    </div>
-
-                                    <span className="text-[10px] text-gray-400">
-                                        {getDaysAgo(hotel.reviews[0].createdAt!)}
-                                    </span>
-                                </div>
-
-                                <p className="mt-4 text-[10px] leading-5 text-gray-500">
-                                    {hotel.reviews[0].text}
-                                </p>
-
-                            </div>
+                            <Review
+                                review={hotel.reviews[0]}
+                                hotelName={hotel.name}
+                                borderColor="#DDDDDD"
+                                textSize="text-[11px]"
+                                className="mt-7 h-auto w-full min-w-0 rounded-xl p-4"
+                            />
                         )}
 
                         </div>
 
                         </section>
+                {/* GUEST REVIEWS / RATINGS */}
+
+                <section className="
+                mt-10
+                pt-8
+                lg:mt-9
+            ">
+
+                    <h2 className="
+                    mb-7
+                    text-center
+                    text-[13px]
+                    uppercase
+                    text-[#717171]
+                ">
+                        Guest reviews
+                    </h2>
+
+                    <div className="
+                    grid
+                    grid-cols-3
+                    gap-5
+                    sm:grid-cols-5
+                    lg:grid-cols-6
+                ">
+
+                        <RatingItem
+                            value={hotel.facilities}
+                            label="Facilities"
+                        />
+
+                        <RatingItem
+                            value={hotel.staff}
+                            label="Staff"
+                        />
+
+                        <RatingItem
+                            value={hotel.cleanliness}
+                            label="Cleanliness"
+                        />
+
+                        <RatingItem
+                            value={hotel.comfort}
+                            label="Comfort"
+                        />
+
+                        <RatingItem
+                            value={hotel.location}
+                            label="Location"
+                        />
+
+                        <RatingItem
+                            value={hotel.valueForMoney}
+                            label="Value for money"
+                        />
+
+                    </div>
+
+                </section>
+
+
+                {/* FACILITIES*/}
+
+                <section className="
+                mt-10
+                mb-14
+
+            ">
+
+                    <h2 className="
+                    mb-7
+                    text-center
+                   text-[13px]
+                    uppercase
+                    text-[#717171]
+                ">
+                        Facilities
+                    </h2>
+
+                    <div className="
+                    grid
+                    ml-4
+                    gap-x-7
+                    gap-y-5
+                    grid-cols-2
+                    lg:grid-cols-3
+                ">
+
+                        {hotel.amenities.map((amenity) => (
+                            <div
+                                key={amenity}
+                                className="
+                                flex items-center gap-1
+                            "
+                            >
+
+                                <img
+                                src="/tick.svg"
+                                className="
+                                flex h-3 w-3
+                                shrink-0
+                                items-center justify-center"
+                                />
+
+                                <span className="
+                                text-[13px]
+                                text-[#717171]
+                            ">
+                                {amenity}
+                            </span>
+                            </div>
+                        ))}
+
+                        {hotel.hasWifi && (
+                            <div className="
+                            flex items-center gap-1
+                        ">
+                                <img
+                                    src="/tick.svg"
+                                    className="
+                                flex h-3 w-3
+                                shrink-0
+                                items-center justify-center"
+                                />
+
+                                <span className="
+                                text-[13px]
+                                   text-[#717171]
+                            ">
+                                Wi-Fi
+                            </span>
+                            </div>
+                        )}
+
+                    </div>
+
+                </section>
+
+
+                {/* ROOMS */}
+                <section className="mb-16">
+                    <div className="mb-6 flex items-center justify-center">
+                        <h2 className="text-center text-[13px] uppercase text-[#717171]">
+                            Book
+                        </h2>
+                    </div>
+
+                    {hotel.rooms.length === 0 ? (
+                        <div
+                            className="
+                rounded-2xl
+                border border-dashed border-gray-200
+                p-10
+                text-center
+                text-sm
+                text-gray-400
+            "
+                        >
+                            No rooms available.
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {hotel.rooms.map((room) => (
+                                <RoomCard
+                                    key={room.id}
+                                    room={room}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </section>
+
+
+                {/* ALL REVIEWS */}
+
+                <section className="mb-16">
+
+                    <div className="mb-8">
+                        <h2 className="
+                    text-center
+                    text-[13px]
+                    uppercase
+                    text-[#717171]">
+                            Comments
+                        </h2>
+
+                    </div>
+
+                    <ReviewList reviews={hotel.reviews} />
+
+
+                    <ReviewForm
+                        hotelId={hotel.id}
+                        isAuth={isAuth}
+                        onSubmitted={async () => {
+                            const updated = await loadHotel(hotel.id);
+
+                            if (updated) {
+                                setHotel(updated);
+                            }
+                        }}
+                    />
+
+                </section>
 
 
 
@@ -541,39 +688,6 @@ const HotelPage = () => {
 </div>
 );
 };
-
-type RatingItemProps = {
-    value: number;
-    label: string;
-};
-
-const RatingItem = ({ value, label }: RatingItemProps) => (
-    <div className="text-center">
-
-        <div className="
-            mx-auto mb-3
-            flex h-[54px] w-[54px]
-            items-center justify-center
-            rounded-full
-            border-2 border-[#5b21e6]
-            text-[18px]
-            font-medium
-            text-[#5b21e6]
-        ">
-            {value > 0 ? value.toFixed(1) : "—"}
-        </div>
-
-        <p className="
-            text-[8px]
-            uppercase
-            text-[#5b21e6]
-            sm:text-[9px]
-        ">
-            {label}
-        </p>
-
-    </div>
-);
 
 export default HotelPage;
 

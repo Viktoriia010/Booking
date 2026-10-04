@@ -140,11 +140,13 @@ export function HotelsProvider({
             }
 
             const data = await response.json() as HotelSearchResult;
+            // const data = await response.json() as Hotel[];
 
             setHotels(data.hotels);
             setTotal(data.total);
             setPage(data.page);
             setPageSize(data.pageSize);
+            // setHotels(data);
         } catch (error) {
             setError(
                 error instanceof Error

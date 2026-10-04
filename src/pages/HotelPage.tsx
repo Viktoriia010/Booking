@@ -693,7 +693,7 @@ export default HotelPage;
 // import { useEffect, useState } from "react";
 // import { useNavigate, useParams } from "react-router-dom";
 // import { getImageUrl } from "../api";
-// import type { HotelCard } from "../context/HotelsContext.types";
+// import type { Hotel } from "../context/HotelsContext.types";
 // import { useHotels } from "../hooks/useHotels.ts";
 // import { useAuth } from "../context/useAuth";
 // import Stars from "../components/modal/Stars";
@@ -704,7 +704,7 @@ export default HotelPage;
 //     const navigate = useNavigate();
 //     const { loadHotel, addReview } = useHotels();
 //     const { isAuth } = useAuth();
-//     const [hotel, setHotel] = useState<HotelCard | null>(null);
+//     const [hotel, setHotel] = useState<Hotel | null>(null);
 //     const [rating, setRating] = useState(0);
 //     const [text, setText] = useState("");
 //     const [message, setMessage] = useState("");
@@ -714,7 +714,7 @@ export default HotelPage;
 //         void loadHotel(id).then(setHotel);
 //     }, [id]);
 //
-//     if (!hotel) return <p>HotelCard not found.</p>;
+//     if (!hotel) return <p>Hotel not found.</p>;
 //
 //     const submitReview = async () => {
 //         if (!isAuth) {

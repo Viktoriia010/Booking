@@ -15,6 +15,8 @@ export const getImageUrl = (url: string) => {
 
     return `${SERVER_URL}/hotels/${url.replace(/^\/+/, "")}`;
 
+    // if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    // return `${SERVER_URL}${url.startsWith("/") ? url : `/${url}`}`;
 };
 
 export const getToken = () => localStorage.getItem("accessToken");

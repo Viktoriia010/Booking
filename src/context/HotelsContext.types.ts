@@ -136,7 +136,6 @@ export type Hotel = {
 
 export type HotelsContextType = {
     hotels: Hotel[];
-
     selectedHotel: Hotel | null;
     setSelectedHotel: React.Dispatch<
         React.SetStateAction<Hotel | null>

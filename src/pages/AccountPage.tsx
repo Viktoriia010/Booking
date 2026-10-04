@@ -34,12 +34,14 @@ const AccountPage = () => {
         travelPurpose: "",
         travelingWithPet: false,
     });
+    // const [data, setData] = useState<AccountData>({ name: user?.name || "", phone: user?.phone || "", country: "", city: "", travelPurpose: "", travelingWithPet: false });
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [cards, setCards] = useState<Card[]>([]);
     const [cardType, setCardType] = useState("Visa");
     const [cardNumber, setCardNumber] = useState("");
     const [expirationDate, setExpirationDate] = useState("");
     const [message, setMessage] = useState("");
+
     const [loading, setLoading] = useState(true);
     const avatarUrl = data.avatarUrl
         ? `${import.meta.env.VITE_PATH_TO_SERVER}${data.avatarUrl.replace(/^\//, "")}`
@@ -76,6 +78,7 @@ const AccountPage = () => {
         setMessage("");
         const response = await apiFetch("/Account", { method: "PUT", body: JSON.stringify(data) });
         setMessage(response.ok ? "Saved successfully." : await readError(response));
+        // setMessage(response.ok ? "Saved." : await readError(response));
     };
 
     const addCard = async () => {
@@ -206,12 +209,31 @@ const AccountPage = () => {
                     </button>
                 </form>
             </section>
+        {/*<div className="account-page">*/}
+        {/*    <h1>Account</h1>*/}
+        {/*    <p>Email: {user?.email}</p>*/}
+        {/*    <form onSubmit={submit} className="account-form">*/}
+        {/*        <input value={data.name} onChange={event => setData({ ...data, name: event.target.value })} placeholder="Name" />*/}
+        {/*        <input value={data.phone} onChange={event => setData({ ...data, phone: event.target.value })} placeholder="Phone" />*/}
+        {/*        <input value={data.country} onChange={event => setData({ ...data, country: event.target.value })} placeholder="Country" />*/}
+        {/*        <input value={data.city} onChange={event => setData({ ...data, city: event.target.value })} placeholder="City" />*/}
+        {/*        <input value={data.travelPurpose} onChange={event => setData({ ...data, travelPurpose: event.target.value })} placeholder="Travel purpose" />*/}
+        {/*        <label><input type="checkbox" checked={data.travelingWithPet} onChange={event => setData({ ...data, travelingWithPet: event.target.checked })} /> Traveling with pet</label>*/}
+        {/*        <button className="button" type="submit">Save</button>*/}
+        {/*    </form>*/}
+        {/*    {message && <p>{message}</p>}*/}
 
             {/* Payment methods */}
             <section className="mb-12">
                 <h2 className="mb-5 text-[18px] font-bold text-neutral-800">
                     Payment methods
                 </h2>
+            {/*<h2>Payment method</h2>*/}
+            {/*<select value={cardType} onChange={event => setCardType(event.target.value)}><option>Visa</option><option>Mastercard</option></select>*/}
+            {/*<input value={cardNumber} onChange={event => setCardNumber(event.target.value)} placeholder="Card number" />*/}
+            {/*<input value={expirationDate} onChange={event => setExpirationDate(event.target.value)} placeholder="MM/YY" />*/}
+            {/*<button type="button" className="button" onClick={addCard}>Add card</button>*/}
+            {/*{cards.map((card, index) => <p key={index}>{card.cardType}: {card.cardNumberHidden} ({card.expirationDate})</p>)}*/}
 
                 {cards.length > 0 && (
                     <div className="mb-5 space-y-3">
@@ -302,6 +324,15 @@ const AccountPage = () => {
                     </div>
                 )}
             </section>
+            {/*<h2>Current and past bookings</h2>*/}
+            {/*{bookings.length === 0 ? <p>No bookings.</p> : bookings.map(booking => (*/}
+            {/*    <div key={booking.id} className="booking-item">*/}
+            {/*        <p>{booking.checkInDate} — {booking.checkOutDate}</p>*/}
+            {/*        <p>Total: {booking.totalPrice}</p>*/}
+            {/*        <p>Status: {booking.status}</p>*/}
+            {/*    </div>*/}
+            {/*))}*/}
+            {/*<button type="button" onClick={logout}>Sign out</button>*/}
         </div>
     );
 };

@@ -4,7 +4,7 @@ import benefits from "@/models/benefits.ts";
 import woman from "@/assets/photo-woman.avif";
 // import {RegisterPage} from "@/pages/Auth/RegisterPage.tsx";
 // import {LoginPage} from "@/pages/Auth/LoginPage.tsx";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import Modal from "@/components/modal/Modal.tsx";
 import Login from "@/pages/Auth/Login.tsx";
 import Register from "@/pages/Auth/Register.tsx";
@@ -30,6 +30,7 @@ export default function Home() {
         loading,
         error,
         loadRandomHotels,
+        // loadHotels,
     } = useHotels();
     const [reviews, setReviews] = useState<ReviewType[]>([]);
 
@@ -41,8 +42,22 @@ export default function Home() {
     // const [selectedHotel, setSelectedHotel] =
     //     useState<HotelCard | null>(null);
 
+    // const [selectedHotel, setSelectedHotel] =
+    //     useState<Hotel | null>(null);
+
+    // const [modal, setModal] = useState<
+    //     "login" | "register" | "verify" | null
+    // >(null);
+
+    // const [verificationData, setVerificationData] =
+    //     useState({
+    //         email: "",
+    //         verificationCode: "",
+    //     });
+
     useEffect(() => {
         void loadRandomHotels();
+        // void loadHotels();
     }, []);
 
     console.log("HOTELS:", hotels);
@@ -121,7 +136,7 @@ export default function Home() {
                         <img
                             src="/setting4.svg"
                             alt=""
-className="w-10 h-10 cursor-pointer"
+                            className="h-10 w-10 cursor-pointer"
                         />
                     </div>
 
@@ -140,32 +155,66 @@ className="w-10 h-10 cursor-pointer"
                     className="block sm:hidden"
                 />
             </section>
+
             <section className="mx-auto max-w-6xl px-4 py-12">
                 {loading && (
                     <p className="text-center text-sm text-[#717171]">
                         Loading hotels...
                     </p>
                 )}
+                {/*<div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-4">*/}
+                {/*    {loading && (*/}
+                {/*        <p className="col-span-full text-center text-sm text-[#717171]">*/}
+                {/*            Loading hotels...*/}
+                {/*        </p>*/}
+                {/*    )}*/}
 
                 {error && (
                     <p className="text-center text-sm text-red-500">
                         {error}
                     </p>
                 )}
+                    {/*{error && (*/}
+                    {/*    <p className="col-span-full text-center text-sm text-red-500">*/}
+                    {/*        {error}*/}
+                    {/*    </p>*/}
+                    {/*)}*/}
 
                 {!loading && !error && hotels.length === 0 && (
                     <p className="text-center text-sm text-[#717171]">
                         No hotels found.
                     </p>
                 )}
+                    {/*{!loading &&*/}
+                    {/*    !error &&*/}
+                    {/*    hotels.length === 0 && (*/}
+                    {/*        <p className="col-span-full text-center text-sm text-[#717171]">*/}
+                    {/*            No hotels found.*/}
+                    {/*        </p>*/}
+                    {/*    )}*/}
 
                 {!loading && !error && hotels.length > 0 && (
                     <div className="overflow-x-auto scrollbar-hide">
                     <HotelList hotels={hotels} />
                         </div>
                 )}
+                {/*    {!loading &&*/}
+                {/*        !error &&*/}
+                {/*        hotels.map(hotel => (*/}
+                {/*            <HotelCard*/}
+                {/*                key={hotel.id}*/}
+                {/*                hotel={hotel}*/}
+                {/*                onChoose={setSelectedHotel}*/}
+                {/*            />*/}
+                {/*        ))}*/}
+                {/*</div>*/}
             </section>
             {/*<HotelList/>*/}
+
+            {/*<HotelDetailsModal*/}
+            {/*    hotel={selectedHotel}*/}
+            {/*    onClose={() => setSelectedHotel(null)}*/}
+            {/*/>*/}
 
             <section className="mx-auto max-w-6xl px-4 pb-8 font-['Nunito Sans']">
                 <h2 className="mb-6 text-center text-[16px] uppercase text-[#717171]">
@@ -180,10 +229,12 @@ className="w-10 h-10 cursor-pointer"
                     ))}
                 </div>
             </section>
+
             <section className="mx-auto max-w-6xl px-4 py-8">
                 <h2 className="mb-6 text-center text-[16px] uppercase text-[#717171]">
                     Safe with us
                 </h2>
+
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
                     {benefits.map((benefit) => (
                         <div
@@ -251,10 +302,10 @@ className="w-10 h-10 cursor-pointer"
                 >
                     Register an account
                 </button>
-                <img
-                    src="/flag.svg"
-                />
+
+                <img src="/flag.svg" alt="" />
             </section>
+
             <Modal
                 open={modal !== null}
                 closeModal={closeModal}
@@ -289,6 +340,6 @@ className="w-10 h-10 cursor-pointer"
                     />
                 )}
             </Modal>
-            </>
+        </>
     );
 }

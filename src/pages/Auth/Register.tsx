@@ -235,7 +235,7 @@ export const Register = ({ onRegister, onLogin  }: RegisterPageProps) => {
                 </button>
             </p>
 
-            {error && <p className="error">{error}</p>}
+            {error && <p className="mt-1 px-4 text-[11px] text-red-500">{error}</p>}
 
 
             <button

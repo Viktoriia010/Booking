@@ -7,10 +7,12 @@ import Modal from "@/components/modal/Modal.tsx";
 import Register from "@/pages/Auth/Register.tsx";
 import Login from "@/pages/Auth/Login.tsx";
 import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
+import Information from "@/pages/Auth/Information.tsx";
+import AllDone from "@/pages/Auth/AllDone.tsx";
 
 const Header = () => {
     const { isAuth, user } = useAuth();
-    const [modal, setModal] = useState<"login" | "register" | "verify" | null>(null);
+    const [modal, setModal] = useState<"login" | "register" | "verify" | "info" | "all-done" |null>(null);
 
     const [verificationData, setVerificationData] = useState({
         email: "",
@@ -103,6 +105,16 @@ const Header = () => {
                             <VerifyCode
                                 email={verificationData.email}
                                 verificationCode={verificationData.verificationCode}
+                                onSuccess={() => setModal("info")}
+                            />
+                        )}
+                        {modal === "info" && (
+                            <Information
+                                onSuccess={() => setModal("all-done")}
+                            />
+                        )}
+                        {modal === "all-done" && (
+                            <AllDone
                                 onClose={closeModal}
                             />
                         )}

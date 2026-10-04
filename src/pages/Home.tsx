@@ -9,6 +9,8 @@ import Modal from "@/components/modal/Modal.tsx";
 import Login from "@/pages/Auth/Login.tsx";
 import Register from "@/pages/Auth/Register.tsx";
 import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
+import Information from "@/pages/Auth/Information.tsx";
+import AllDone from "@/pages/Auth/AllDone.tsx";
 import {useHotels} from "@/hooks/useHotels.ts";
 import {apiFetch} from "@/api.ts";
 import Review from "@/components/reviews/Review.tsx";
@@ -18,7 +20,7 @@ import type { Review as ReviewType } from "@/context/HotelsContext.types";
 //зробити вибір дат по календарю
 
 export default function Home() {
-    const [modal, setModal] = useState<"login" | "register" | "verify" | null>(null);
+    const [modal, setModal] = useState<"login" | "register" | "verify" | "info" | "all-done" |null>(null);
     const [verificationData, setVerificationData] = useState({
         email: "",
         verificationCode: "",
@@ -68,6 +70,7 @@ export default function Home() {
         "CAN RENDER:",
         !loading && !error && hotels.length > 0
     );
+
 
     const closeModal = () => setModal(null);
 
@@ -336,7 +339,17 @@ export default function Home() {
                     <VerifyCode
                         email={verificationData.email}
                         verificationCode={verificationData.verificationCode}
-                        onClose={() => setModal(null)}
+                        onSuccess={() => setModal("info")}
+                    />
+                )}
+                {modal === "info" && (
+                    <Information
+                        onSuccess={() => setModal("all-done")}
+                    />
+                )}
+                {modal === "all-done" && (
+                    <AllDone
+                        onClose={closeModal}
                     />
                 )}
             </Modal>

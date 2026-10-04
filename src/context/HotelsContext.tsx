@@ -251,9 +251,60 @@ export function HotelsProvider({
         if (!response.ok) {
             throw new Error(await readError(response));
         }
-
+        // const review = await response.json();
         const updatedHotel = await loadHotel(hotelId);
 
+        // setHotels(current =>
+        //     current.map(hotel => {
+        //         if (hotel.id !== hotelId) {
+        //             return hotel;
+        //         }
+        //
+        //         const reviews = [
+        //             ...hotel.reviews,
+        //             review,
+        //         ];
+        //
+        //         const totalRating = reviews.reduce(
+        //             (sum, item) => sum + item.rating,
+        //             0
+        //         );
+//         return {
+//             ...hotel,
+//             reviews,
+//             reviewsCount: reviews.length,
+//             rating:
+//                 reviews.length > 0
+//                     ? totalRating / reviews.length
+//                     : 0,
+//         };
+//     })
+// );
+//
+//     setSelectedHotel(current => {
+//         if (!current || current.id !== hotelId) {
+//             return current;
+//         }
+//
+//         const reviews = [
+//             ...current.reviews,
+//             review,
+//         ];
+//
+//         const totalRating = reviews.reduce(
+//             (sum, item) => sum + item.rating,
+//             0
+//         );
+//         return {
+//             ...current,
+//             reviews,
+//             reviewsCount: reviews.length,
+//             rating:
+//                 reviews.length > 0
+//                     ? totalRating / reviews.length
+//                     : 0,
+//         };
+//     });
         if (updatedHotel) {
             setHotels((current) =>
                 current.map((hotel) =>
@@ -262,6 +313,7 @@ export function HotelsProvider({
                         : hotel
                 )
             );
+
 
             setSelectedHotel(updatedHotel);
         }

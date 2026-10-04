@@ -173,11 +173,22 @@ const SearchForm = ({ onSearch }: SearchFormProps) => {
     const submit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
+
         if (checkIn && checkOut && checkOut <= checkIn) {
             setError("Check-out must be after check-in.");
             return;
         }
-        onSearch({ search, checkIn, checkOut, adults, children, rooms });
+
+        const data: SearchData = {
+            search,
+            checkIn,
+            checkOut,
+            adults,
+            children,
+            rooms,
+        };
+
+        onSearch(data);
     };
 
     return (

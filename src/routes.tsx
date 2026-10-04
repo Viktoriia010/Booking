@@ -121,6 +121,7 @@ import HotelPage from "@/pages/HotelPage.tsx";
 import GoogleCallback from "@/pages/Auth/GoogleCallback.tsx";
 import BookingPage from "@/pages/Booking/BookingPage.tsx";
 import BookingSuccess from "@/pages/Booking/BookingSuccess.tsx";
+import SearchPage from "@/pages/SearchPage.tsx";
 export const routes = createBrowserRouter([
     {
         path: "/",
@@ -142,10 +143,7 @@ export const routes = createBrowserRouter([
                 Component: ProtectedRoute,
                 // element: <ProtectedRoute />,
                 children: [
-                    {
-                        path: "account",
-                        Component: AccountPage,
-                    },
+
                     {
                         path: "booking/:roomId",
                         Component: BookingPage,
@@ -163,6 +161,14 @@ export const routes = createBrowserRouter([
             {
                 path: `hotel/:id`,
                 Component: HotelPage,
+            },
+            {
+                path: `search`,
+                Component: SearchPage,
+            },
+            {
+                path: "account",
+                Component: AccountPage,
             },
             // {
             //     path: "booking/:roomId",

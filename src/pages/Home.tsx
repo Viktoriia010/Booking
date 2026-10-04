@@ -18,6 +18,7 @@ import {useHotels} from "@/hooks/useHotels.ts";
 import {apiFetch} from "@/api.ts";
 import Review from "@/components/reviews/Review.tsx";
 import type { Review as ReviewType } from "@/context/HotelsContext.types";
+import {useNavigate} from "react-router-dom";
 // import HotelCard from "@/components/hotel/HotelCard.tsx";
 
 //зробити вибір дат по календарю
@@ -65,8 +66,11 @@ export default function Home() {
         // void loadHotels();
     }, []);
 
+    const navigate = useNavigate();
+
     const search = async (data: SearchData) => {
         await loadHotels(data);
+        navigate("/search");
     };
 
     console.log("HOTELS:", hotels);

@@ -20,26 +20,21 @@ const BookingPage = () => {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        if (!roomId) {
-            return;
-        }
+        if (!roomId) return;
 
-        apiFetch("/Hotel")
+        apiFetch(`/Room/${roomId}`)
             .then(response => {
-                if (!response.ok) throw new Error("Could not load hotels");
+                if (!response.ok) {
+                    throw new Error("Could not load room");
+                }
+
                 return response.json();
             })
-            .then((hotels) => {
-                for (const hotel of hotels) {
-                    const found = hotel.rooms.find(
-                        (item: Room) => item.id === roomId
-                    );
-
-                    if (found) {
-                        setRoom(found);
-                        break;
-                    }
-                }
+            .then((data: Room) => {
+                setRoom(data);
+            })
+            .catch(error => {
+                console.error("Failed to load room:", error);
             });
     }, [roomId]);
 

@@ -176,16 +176,12 @@ const HotelPage = () => {
 
                         {/* Rating */}
                         <div className=" flex items-center justify-center mb-2">
-                            {Array.from({ length: 5 }).map((_, index) => (
+                            {Array.from({ length: hotel.stars }).map((_, index) => (
                                 <img
                                     key={index}
                                     src={starRating}
                                     alt="star"
-                                    className={`h-3.5 w-3.5 ${
-                                        index < hotel.rating / 2
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                    }`}
+                                    className="h-3.5 w-3.5 "
                                 />
                             ))}
                         </div>
@@ -665,7 +661,10 @@ const HotelPage = () => {
 
                     </div>
 
-                    <ReviewList reviews={hotel.reviews} />
+                    <ReviewList
+                        reviews={hotel.reviews}
+                        hotelName={hotel.name}
+                    />
 
 
                     <ReviewForm
@@ -694,7 +693,7 @@ export default HotelPage;
 // import { useEffect, useState } from "react";
 // import { useNavigate, useParams } from "react-router-dom";
 // import { getImageUrl } from "../api";
-// import type { Hotel } from "../context/HotelsContext.types";
+// import type { HotelCard } from "../context/HotelsContext.types";
 // import { useHotels } from "../hooks/useHotels.ts";
 // import { useAuth } from "../context/useAuth";
 // import Stars from "../components/modal/Stars";
@@ -705,7 +704,7 @@ export default HotelPage;
 //     const navigate = useNavigate();
 //     const { loadHotel, addReview } = useHotels();
 //     const { isAuth } = useAuth();
-//     const [hotel, setHotel] = useState<Hotel | null>(null);
+//     const [hotel, setHotel] = useState<HotelCard | null>(null);
 //     const [rating, setRating] = useState(0);
 //     const [text, setText] = useState("");
 //     const [message, setMessage] = useState("");
@@ -715,7 +714,7 @@ export default HotelPage;
 //         void loadHotel(id).then(setHotel);
 //     }, [id]);
 //
-//     if (!hotel) return <p>Hotel not found.</p>;
+//     if (!hotel) return <p>HotelCard not found.</p>;
 //
 //     const submitReview = async () => {
 //         if (!isAuth) {

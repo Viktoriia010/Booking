@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
     HotelsContext,
     type Hotel,
-    type SearchData,
+    type SearchData, type HotelSearchResult, type HotelFiltersResponse,
 } from "./HotelsContext.types";
 import { apiFetch, readError } from "../api";
 
@@ -16,6 +16,37 @@ export function HotelsProvider({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [searchData, setSearchData] =  useState<SearchData | null>(null);
+    const [filters, setFilters] = useState<HotelFiltersResponse | null>(null);
+
+    const [total, setTotal] = useState(0);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(20);
+
+
+    const loadRandomHotels = async () => {
+        setLoading(true);
+        setError("");
+
+        try {
+            const response = await apiFetch("/Hotel/random");
+
+            if (!response.ok) {
+                throw new Error(await readError(response));
+            }
+
+            const data = await response.json() as Hotel[];
+
+            setHotels(data);
+        } catch (error) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Could not load hotels"
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const loadHotels = async (searchData?: SearchData) => {
         setLoading(true);
@@ -54,6 +85,52 @@ export function HotelsProvider({
                 params.append("checkOut", searchData.checkOut);
             }
 
+            if (searchData?.minRating !== undefined) {
+                params.append(
+                    "minRating",
+                    String(searchData.minRating)
+                );
+            }
+
+            if (searchData?.stars !== undefined) {
+                params.append(
+                    "stars",
+                    String(searchData.stars)
+                );
+            }
+
+            if (searchData?.types?.length) {
+                searchData.types.forEach(type => {
+                    params.append("types", type);
+                });
+            }
+
+            if (searchData?.chainIds?.length) {
+                searchData.chainIds.forEach(id => {
+                    params.append("chainIds", String(id));
+                });
+            }
+
+            if (searchData?.amenities?.length) {
+                searchData.amenities.forEach(amenity => {
+                    params.append("amenities", amenity);
+                });
+            }
+
+            if (searchData?.sort) {
+                params.append("sort", searchData.sort);
+            }
+
+            params.append(
+                "page",
+                String(searchData?.page ?? 1)
+            );
+
+            params.append(
+                "pageSize",
+                String(searchData?.pageSize ?? 20)
+            );
+
             const response = await apiFetch(
                 `/Hotel?${params.toString()}`
             );
@@ -62,9 +139,12 @@ export function HotelsProvider({
                 throw new Error(await readError(response));
             }
 
-            const data = await response.json() as Hotel[];
+            const data = await response.json() as HotelSearchResult;
 
-            setHotels(data);
+            setHotels(data.hotels);
+            setTotal(data.total);
+            setPage(data.page);
+            setPageSize(data.pageSize);
         } catch (error) {
             setError(
                 error instanceof Error
@@ -75,6 +155,62 @@ export function HotelsProvider({
             setLoading(false);
         }
     };
+
+    const loadFilters = async (searchData?: SearchData) => {
+        setError("");
+
+        try {
+            const params = new URLSearchParams();
+
+            if (searchData?.search) {
+                params.append("search", searchData.search);
+            }
+
+            params.append(
+                "adults",
+                String(searchData?.adults ?? 0)
+            );
+
+            params.append(
+                "children",
+                String(searchData?.children ?? 0)
+            );
+
+            params.append(
+                "rooms",
+                String(searchData?.rooms ?? 0)
+            );
+
+            if (searchData?.checkIn) {
+                params.append("checkIn", searchData.checkIn);
+            }
+
+            if (searchData?.checkOut) {
+                params.append("checkOut", searchData.checkOut);
+            }
+
+            const response = await apiFetch(
+                `/Hotel/filters?${params.toString()}`
+            );
+
+            if (!response.ok) {
+                throw new Error(await readError(response));
+            }
+
+            const data =
+                await response.json() as HotelFiltersResponse;
+
+            setFilters(data);
+
+        } catch (error) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Could not load filters"
+            );
+        }
+    };
+
 
     const loadHotel = async (id: string) => {
         const response = await apiFetch(`/Hotel/${id}`);
@@ -138,7 +274,13 @@ export function HotelsProvider({
                 loading,
                 error,
                 searchData,
+                filters,
+                total,
+                page,
+                pageSize,
                 loadHotels,
+                loadRandomHotels,
+                loadFilters,
                 loadHotel,
                 addReview,
             }}

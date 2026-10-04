@@ -1,15 +1,19 @@
 import banner from "@/assets/banner.jpg";
 import HotelList from "@/components/hotel/HotelList.tsx";
-import ReviewList from "@/components/reviews/ReviewList.tsx";
 import benefits from "@/models/benefits.ts";
 import woman from "@/assets/photo-woman.avif";
 // import {RegisterPage} from "@/pages/Auth/RegisterPage.tsx";
 // import {LoginPage} from "@/pages/Auth/LoginPage.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Modal from "@/components/modal/Modal.tsx";
 import Login from "@/pages/Auth/Login.tsx";
 import Register from "@/pages/Auth/Register.tsx";
 import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
+import {useHotels} from "@/hooks/useHotels.ts";
+import {apiFetch} from "@/api.ts";
+import Review from "@/components/reviews/Review.tsx";
+import type { Review as ReviewType } from "@/context/HotelsContext.types";
+// import HotelCard from "@/components/hotel/HotelCard.tsx";
 
 //зробити вибір дат по календарю
 
@@ -19,8 +23,37 @@ export default function Home() {
         email: "",
         verificationCode: "",
     });
-    console.log("CURRENT MODAL:", modal);
     console.log("VERIFICATION DATA:", verificationData);
+
+    const {
+        hotels,
+        loading,
+        error,
+        loadRandomHotels,
+    } = useHotels();
+    const [reviews, setReviews] = useState<ReviewType[]>([]);
+
+    useEffect(() => {
+        apiFetch("/Review/best")
+            .then(res => res.json())
+            .then(setReviews);
+    }, []);
+    // const [selectedHotel, setSelectedHotel] =
+    //     useState<HotelCard | null>(null);
+
+    useEffect(() => {
+        void loadRandomHotels();
+    }, []);
+
+    console.log("HOTELS:", hotels);
+    console.log("loading:", loading);
+    console.log("error:", error);
+    console.log("hotels.length:", hotels.length);
+    console.log(
+        "CAN RENDER:",
+        !loading && !error && hotels.length > 0
+    );
+
     const closeModal = () => setModal(null);
 
     return (
@@ -108,14 +141,44 @@ className="w-10 h-10 cursor-pointer"
                 />
             </section>
             <section className="mx-auto max-w-6xl px-4 py-12">
-                    <HotelList/>
+                {loading && (
+                    <p className="text-center text-sm text-[#717171]">
+                        Loading hotels...
+                    </p>
+                )}
+
+                {error && (
+                    <p className="text-center text-sm text-red-500">
+                        {error}
+                    </p>
+                )}
+
+                {!loading && !error && hotels.length === 0 && (
+                    <p className="text-center text-sm text-[#717171]">
+                        No hotels found.
+                    </p>
+                )}
+
+                {!loading && !error && hotels.length > 0 && (
+                    <div className="overflow-x-auto scrollbar-hide">
+                    <HotelList hotels={hotels} />
+                        </div>
+                )}
             </section>
+            {/*<HotelList/>*/}
+
             <section className="mx-auto max-w-6xl px-4 pb-8 font-['Nunito Sans']">
                 <h2 className="mb-6 text-center text-[16px] uppercase text-[#717171]">
                     Reviews
                 </h2>
-
-                    <ReviewList/>
+                <div className="flex flex-row gap-9 overflow-x-auto scrollbar-hide">
+                    {reviews.map(review => (
+                        <Review
+                            key={review.id}
+                            review={review}
+                        />
+                    ))}
+                </div>
             </section>
             <section className="mx-auto max-w-6xl px-4 py-8">
                 <h2 className="mb-6 text-center text-[16px] uppercase text-[#717171]">

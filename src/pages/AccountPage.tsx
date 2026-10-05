@@ -22,6 +22,8 @@ const inputClass =
 const AccountPage = () => {
     const navigate = useNavigate();
 
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
 
     const { isAuth, user, logout } = useAuth();
@@ -76,9 +78,36 @@ const AccountPage = () => {
     const submit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setMessage("");
-        const response = await apiFetch("/Account", { method: "PUT", body: JSON.stringify(data) });
-        setMessage(response.ok ? "Saved successfully." : await readError(response));
+
+        const formData = new FormData();
+
+        formData.append("name", data.name);
+        formData.append("phone", data.phone);
+        formData.append("country", data.country);
+        formData.append("city", data.city);
+        formData.append("travelPurpose", data.travelPurpose);
+        formData.append(
+            "travelingWithPet",
+            String(data.travelingWithPet)
+        );
+
+        if (avatarFile) {
+            formData.append("image", avatarFile);
+        }
+
+        const response = await apiFetch("/Account", {
+            method: "PUT",
+            body: formData,
+        });
+
+        setMessage(
+            response.ok
+                ? "Saved successfully."
+                : await readError(response)
+        );
         // setMessage(response.ok ? "Saved." : await readError(response));
+
+        setAvatarFile(null);
     };
 
     const addCard = async () => {
@@ -117,18 +146,60 @@ const AccountPage = () => {
         <div className="mx-auto max-w-4xl px-4 py-10 font-['Nunito_Sans']">
             {/* Header */}
             <div className="mb-10 flex items-center justify-between border-b border-[#EEEEEE] pb-6">
+
                 <div className="flex items-center gap-4">
-                    {avatarUrl ? (
+                    {avatarPreview || avatarUrl ? (
                         <img
-                            src={avatarUrl}
+                            src={avatarPreview || avatarUrl || ""}
                             alt={data.name || "Avatar"}
-                            className="h-14 w-14 rounded-full object-cover"
+                            className="h-20 w-20 rounded-full object-cover"
                         />
                     ) : (
-                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-lg font-bold text-[#581ADB]">
+                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-violet-100 text-2xl font-bold text-[#581ADB]">
                             {data.name?.charAt(0).toUpperCase() || "U"}
                         </div>
                     )}
+
+                    <div>
+                        <label className="cursor-pointer rounded-full border border-[#581ADB] px-5 py-2 text-sm font-semibold text-[#581ADB] hover:bg-violet-50">
+                            Choose avatar
+
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(event) => {
+                                    const file = event.target.files?.[0];
+
+                                    if (!file) return;
+
+                                    setAvatarFile(file);
+                                    setAvatarPreview(URL.createObjectURL(file));
+                                }}
+                            />
+                        </label>
+
+                        {/*{avatarFile && (*/}
+                        {/*    <p className="mt-2 text-xs text-neutral-500">*/}
+                        {/*        {avatarFile.name}*/}
+                        {/*    </p>*/}
+                        {/*)}*/}
+                    </div>
+                </div>
+
+
+                <div className="flex items-center gap-4">
+                    {/*{avatarUrl ? (*/}
+                    {/*    <img*/}
+                    {/*        src={avatarUrl}*/}
+                    {/*        alt={data.name || "Avatar"}*/}
+                    {/*        className="h-14 w-14 rounded-full object-cover"*/}
+                    {/*    />*/}
+                    {/*) : (*/}
+                    {/*    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 text-lg font-bold text-[#581ADB]">*/}
+                    {/*        {data.name?.charAt(0).toUpperCase() || "U"}*/}
+                    {/*    </div>*/}
+                    {/*)}*/}
 
                     <div>
                         <h1 className="text-[28px] font-extrabold text-[#581ADB]">

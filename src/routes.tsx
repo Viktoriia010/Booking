@@ -143,7 +143,10 @@ export const routes = createBrowserRouter([
                 Component: ProtectedRoute,
                 // element: <ProtectedRoute />,
                 children: [
-
+                    {
+                        path: "account",
+                        Component: AccountPage,
+                    },
                     {
                         path: "booking/:roomId",
                         Component: BookingPage,
@@ -166,10 +169,7 @@ export const routes = createBrowserRouter([
                 path: `search`,
                 Component: SearchPage,
             },
-            {
-                path: "account",
-                Component: AccountPage,
-            },
+
             // {
             //     path: "booking/:roomId",
             //     lazy: () =>

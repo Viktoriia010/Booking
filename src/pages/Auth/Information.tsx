@@ -1,6 +1,18 @@
 import { useForm } from "react-hook-form";
 import { apiFetch, readError } from "../../api";
 import { useAuth } from "../../context/useAuth";
+import {useEffect, useState} from "react";
+
+type Location = {
+    country: string;
+    cities: string[];
+};
+
+type LocationsResponse = {
+    error: boolean;
+    msg: string;
+    data: Location[];
+};
 
 type InformationFormData = {
     country: string;
@@ -15,10 +27,34 @@ type InformationProps = {
 
 const Information = ({onSuccess}:InformationProps) => {
     const { user } = useAuth();
+    const [locations, setLocations] = useState<Location[]>([]);
+
+    useEffect(() => {
+        const loadLocations = async () => {
+            try {
+                const response = await fetch("https://countriesnow.space/api/v0.1/countries");
+
+                if (!response.ok) {
+                    throw new Error("Failed to load locations");
+                }
+
+                const result: LocationsResponse = await response.json();
+
+                setLocations(result.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        loadLocations();
+    }, []);
+
 
     const {
         register,
         handleSubmit,
+        resetField,
+        watch,
         formState: { isValid },
     } = useForm<InformationFormData>({
         mode: "onChange",
@@ -30,18 +66,30 @@ const Information = ({onSuccess}:InformationProps) => {
         },
     });
 
+    const selectedCountry = watch("country");
+
+    const cities =
+        locations.find(
+            (location) => location.country === selectedCountry
+        )?.cities ?? [];
+
     const submit = async (data: InformationFormData) => {
         try {
+            const formData = new FormData();
+
+            formData.append("name", user?.name || "");
+            formData.append("phone", user?.phone || "");
+            formData.append("country", data.country);
+            formData.append("city", data.city);
+            formData.append("travelPurpose", data.travelPurpose);
+            formData.append(
+                "travelingWithPet",
+                String(data.travelingWithPet)
+            );
+
             const response = await apiFetch("/Account", {
                 method: "PUT",
-                body: JSON.stringify({
-                    name: user?.name || "",
-                    phone: user?.phone || "",
-                    country: data.country,
-                    city: data.city,
-                    travelPurpose: data.travelPurpose,
-                    travelingWithPet: data.travelingWithPet,
-                }),
+                body: formData,
             });
 
             if (!response.ok) {
@@ -80,18 +128,21 @@ const Information = ({onSuccess}:InformationProps) => {
                         <select
                             {...register("country", {
                                 required: true,
+                                onChange: () => {
+                                    resetField("city");
+                                },
                             })}
                             className="h-[53px] w-full cursor-pointer appearance-none rounded-full border border-[#DDDDDD] bg-white px-6 text-[16px] text-[#717171] outline-none transition focus:border-[#581ADB]"
-                            defaultValue=""
                         >
                             <option value="" disabled>
                                 Country
                             </option>
-                            <option value="Ukraine">Ukraine</option>
-                            <option value="Poland">Poland</option>
-                            <option value="Germany">Germany</option>
-                            <option value="France">France</option>
-                            <option value="Italy">Italy</option>
+
+                            {locations.map((location) => (
+                                <option key={location.country} value={location.country}>
+                                    {location.country}
+                                </option>
+                            ))}
                         </select>
 
                         <span className="pointer-events-none absolute right-6 top-5.5 -translate-y-1/2 text-[#717171]">
@@ -105,17 +156,18 @@ const Information = ({onSuccess}:InformationProps) => {
                             {...register("city", {
                                 required: true,
                             })}
-                            className="h-[53px] w-full cursor-pointer appearance-none rounded-full border border-[#DDDDDD] bg-white px-6 text-[16px] text-[#717171] outline-none transition focus:border-[#581ADB]"
-                            defaultValue=""
+                            disabled={!selectedCountry}
+                            className="h-[53px] w-full cursor-pointer appearance-none rounded-full border border-[#DDDDDD] bg-white px-6 text-[16px] text-[#717171] outline-none transition focus:border-[#581ADB] disabled:cursor-not-allowed disabled:bg-[#F5F5F5]"
                         >
                             <option value="" disabled>
                                 City
                             </option>
-                            <option value="Kyiv">Kyiv</option>
-                            <option value="Lviv">Lviv</option>
-                            <option value="Uzhhorod">Uzhhorod</option>
-                            <option value="Warsaw">Warsaw</option>
-                            <option value="Berlin">Berlin</option>
+
+                            {cities.map((city) => (
+                                <option key={city} value={city}>
+                                    {city}
+                                </option>
+                            ))}
                         </select>
 
                         <span className="pointer-events-none absolute right-6 top-5.5 -translate-y-1/2 text-[#717171]">
@@ -165,7 +217,9 @@ const Information = ({onSuccess}:InformationProps) => {
                                 <input
                                     type="radio"
                                     value="true"
-                                    {...register("travelingWithPet")}
+                                    {...register("travelingWithPet", {
+                                        setValueAs: (value) => value === "true",
+                                    })}
                                     className="h-4 w-4 accent-[#581ADB]"
                                 />
                                 Yes
@@ -175,7 +229,9 @@ const Information = ({onSuccess}:InformationProps) => {
                                 <input
                                     type="radio"
                                     value="false"
-                                    {...register("travelingWithPet")}
+                                    {...register("travelingWithPet", {
+                                        setValueAs: (value) => value === "true",
+                                    })}
                                     className="h-4 w-4 accent-[#581ADB]"
                                 />
                                 No

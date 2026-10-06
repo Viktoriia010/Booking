@@ -1,16 +1,10 @@
 import { useState } from "react";
-import {  useNavigate } from "react-router-dom";
-// import { apiFetch, readError } from "@/api";
-// import { useNavigate } from "react-router-dom";
-import { apiFetch, readError, API_URL } from "@/api";
-import { useAuth } from "@/context/useAuth";
-import { type SubmitHandler, useForm } from "react-hook-form";
-
-
+import { API_URL, apiFetch, readError } from "@/api";
+import { useForm, type SubmitHandler } from "react-hook-form";
 
 type LoginPageProps = {
     onRegister: () => void;
-    onSuccess: () => void;
+    onVerify: (email: string) => void;
 };
 
 type LogInFormData = {
@@ -18,15 +12,15 @@ type LogInFormData = {
     password: string;
 };
 
-
-const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
-    const navigate = useNavigate();
-    const { login } = useAuth();
-
+const Login = ({ onRegister, onVerify }: LoginPageProps) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const {register, handleSubmit, formState: {errors}} = useForm<LogInFormData>();
 
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<LogInFormData>();
 
     const onSubmit: SubmitHandler<LogInFormData> = async (data) => {
         setError("");
@@ -37,7 +31,8 @@ const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
                 method: "POST",
                 body: JSON.stringify({
                     email: data.email,
-                    password: data.password,}),
+                    password: data.password,
+                }),
             });
 
             if (!response.ok) {
@@ -46,17 +41,11 @@ const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
 
             const resp = await response.json();
 
-            login(
-                {
-                    name: resp.name,
-                    email: resp.email,
-                },
-                resp.accessToken,
-                resp.refreshToken
-            );
+            console.log("LOGIN RESPONSE:", resp);
 
-            onSuccess();
-            navigate("/account");
+            // /Auth/login только отправляет код на email.
+            // Токен будет получен после /Auth/verify.
+            onVerify(resp.email || data.email);
         } catch (error) {
             setError(
                 error instanceof Error
@@ -97,12 +86,12 @@ const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
                         className="h-[52px] w-full rounded-full border border-neutral-300 bg-white px-5 text-sm text-neutral-700 outline-none transition placeholder:text-neutral-500 focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
                     />
 
-                {errors.email && (
-                    <p className="mt-1 px-4 text-xs text-red-500">
-                        {errors.email.message}
-                    </p>
-                )}
-            </div>
+                    {errors.email && (
+                        <p className="mt-1 px-4 text-xs text-red-500">
+                            {errors.email.message}
+                        </p>
+                    )}
+                </div>
 
                 <div className="mb-4">
                     <input
@@ -127,7 +116,11 @@ const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
                     )}
                 </div>
 
-                {error && <p className="error">{error}</p>}
+                {error && (
+                    <p className="mb-3 text-center text-xs text-red-500">
+                        {error}
+                    </p>
+                )}
 
                 <button
                     type="submit"
@@ -137,19 +130,18 @@ const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
                     {loading ? "Loading..." : "Continue"}
                 </button>
 
-            {/* Register */}
-            <div className="mt-2 text-center text-sm text-neutral-500">
-                Do not have an account?{' '}
-                <button
-                    type="button"
-                    onClick={onRegister}
-                    className="text-[#581ADB] transition hover:text-violet-800 cursor-pointer hover:underline"
-                >
-                    Register
-                </button>
-            </div>
+                <div className="mt-2 text-center text-sm text-neutral-500">
+                    Do not have an account?{" "}
+                    <button
+                        type="button"
+                        onClick={onRegister}
+                        className="cursor-pointer text-[#581ADB] transition hover:text-violet-800 hover:underline"
+                    >
+                        Register
+                    </button>
+                </div>
 
-                <div className="mt-9 mb-14 space-y-5">
+                <div className="mb-14 mt-9 space-y-5">
                     <button
                         type="button"
                         onClick={loginWithGoogle}
@@ -160,50 +152,47 @@ const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
                             alt="Google Logo"
                         />
 
-                    <span className="flex-1 text-center text-black">
+                        <span className="flex-1 text-center text-black">
                             Sign In with Google
                         </span>
 
-                    <span className="w-8" />
-                </button>
+                        <span className="w-8" />
+                    </button>
 
-                {/* Facebook */}
-                <button
-                    type="button"
-                    className="flex h-[52px] w-full items-center cursor-pointer rounded-full border border-neutral-300 bg-white px-5 text-sm transition hover:bg-neutral-50"
-                >
-                    <img
-                        src="/logos_facebook.svg"
-                        alt="Facebook Logo"
-                    />
+                    <button
+                        type="button"
+                        className="flex h-[52px] w-full cursor-pointer items-center rounded-full border border-neutral-300 bg-white px-5 text-sm transition hover:bg-neutral-50"
+                    >
+                        <img
+                            src="/logos_facebook.svg"
+                            alt="Facebook Logo"
+                        />
 
-                    <span className="flex-1 text-center text-black">
+                        <span className="flex-1 text-center text-black">
                             Sign In with Facebook
                         </span>
 
-                    <span className="w-8" />
-                </button>
+                        <span className="w-8" />
+                    </button>
 
-                {/* Apple */}
-                <button
-                    type="button"
-                    className="flex h-[52px] w-full items-center cursor-pointer rounded-full border border-neutral-300 bg-white px-5 text-sm transition hover:bg-neutral-50"
-                >
-                    <img
-                        src="/apple.svg"
-                        alt="Apple Logo"
-                    />
+                    <button
+                        type="button"
+                        className="flex h-[52px] w-full cursor-pointer items-center rounded-full border border-neutral-300 bg-white px-5 text-sm transition hover:bg-neutral-50"
+                    >
+                        <img
+                            src="/apple.svg"
+                            alt="Apple Logo"
+                        />
 
-                    <span className="flex-1 text-center text-black">
+                        <span className="flex-1 text-center text-black">
                             Sign In with Apple
                         </span>
 
-                    <span className="w-8" />
-                </button>
-
-            </div>
-        </form>
-    </div>
+                        <span className="w-8" />
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 };
 

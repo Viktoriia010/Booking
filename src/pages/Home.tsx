@@ -11,7 +11,10 @@ import { useHotels } from "@/hooks/useHotels.ts";
 import SearchForm from "@/components/hotels/SearchForm.tsx";
 import HotelCard from "@/components/hotels/HotelCard.tsx";
 import HotelDetailsModal from "@/components/hotels/HotelDetailsModal.tsx";
-import type { Hotel, SearchData } from "@/context/HotelsContext.types.ts";
+import type {
+    Hotel,
+    SearchData,
+} from "@/context/HotelsContext.types.ts";
 
 export default function Home() {
     const {
@@ -31,18 +34,20 @@ export default function Home() {
     const [verificationData, setVerificationData] =
         useState({
             email: "",
-            verificationCode: "",
+            purpose: "Login",
         });
 
     useEffect(() => {
         void loadHotels();
-    }, []);
+    }, [loadHotels]);
 
     const search = async (data: SearchData) => {
         await loadHotels(data);
     };
 
-    const closeModal = () => setModal(null);
+    const closeModal = () => {
+        setModal(null);
+    };
 
     return (
         <>
@@ -96,7 +101,8 @@ export default function Home() {
 
                     {!loading &&
                         !error &&
-                        hotels.map(hotel => (
+                        hotels.length > 0 &&
+                        hotels.map((hotel) => (
                             <HotelCard
                                 key={hotel.id}
                                 hotel={hotel}
@@ -125,7 +131,7 @@ export default function Home() {
                 </h2>
 
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                    {benefits.map(benefit => (
+                    {benefits.map((benefit) => (
                         <div
                             key={benefit.text}
                             className="flex h-[208px] flex-col items-center justify-center rounded-[13px] border border-[#DDDDDD] px-4 text-center last:col-span-2 sm:last:col-span-1"
@@ -158,18 +164,21 @@ export default function Home() {
 
                     <div className="flex min-h-[171px] flex-1 flex-col justify-center rounded-[13px] border border-[#E5E5E5] bg-white px-6 py-4 text-[15px] leading-6 text-black shadow-[0_3px_12px_rgba(0,0,0,0.06)]">
                         <p>
-                            We believe that every customer deserves the best,
-                            and we're committed to providing top-class
-                            services to all of our clients. When you book with
-                            us, you can enjoy not only great deals on your
-                            travel arrangements, but also exclusive discounts
-                            and special offers. We value your loyalty and want
-                            to show our appreciation by giving back.
+                            We believe that every customer deserves
+                            the best, and we're committed to providing
+                            top-class services to all of our clients.
+                            When you book with us, you can enjoy not
+                            only great deals on your travel
+                            arrangements, but also exclusive discounts
+                            and special offers. We value your loyalty
+                            and want to show our appreciation by giving
+                            back.
                         </p>
 
                         <p className="mt-4">
-                            So start your search today and discover the amazing
-                            rewards waiting for you on our website!
+                            So start your search today and discover the
+                            amazing rewards waiting for you on our
+                            website!
                         </p>
                     </div>
                 </div>
@@ -195,32 +204,41 @@ export default function Home() {
             >
                 {modal === "register" && (
                     <Register
-                        onRegister={(email, verificationCode) => {
+                        onRegister={(email) => {
                             setVerificationData({
                                 email,
-                                verificationCode,
+                                purpose: "Registration",
                             });
 
                             setModal("verify");
                         }}
-                        onLogin={() => setModal("login")}
+                        onLogin={() => {
+                            setModal("login");
+                        }}
                     />
                 )}
 
                 {modal === "login" && (
                     <Login
-                        onRegister={() => setModal("register")}
-                        onSuccess={closeModal}
+                        onRegister={() => {
+                            setModal("register");
+                        }}
+                        onVerify={(email) => {
+                            setVerificationData({
+                                email,
+                                purpose: "Login",
+                            });
+
+                            setModal("verify");
+                        }}
                     />
                 )}
 
                 {modal === "verify" && (
                     <VerifyCode
                         email={verificationData.email}
-                        verificationCode={
-                            verificationData.verificationCode
-                        }
-                        onClose={() => setModal(null)}
+                        purpose={verificationData.purpose}
+                        onSuccess={closeModal}
                     />
                 )}
             </Modal>

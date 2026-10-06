@@ -1,18 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { getImageUrl } from "../../api";
 
 type LastBooking = {
     bookingId: string;
-    hotelId: string;
     hotelName: string;
-    city: string;
-    country: string;
-    roomId: string;
     roomTitle: string;
     bedType: string;
     pricePerNight: number;
-    roomImageUrl: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -22,211 +16,222 @@ type LastBooking = {
     children: number;
     phone: string;
     total: number;
+    roomImageUrl: string;
+};
+
+const getLastBooking = (): LastBooking | null => {
+    const saved =
+        localStorage.getItem("last_booking");
+
+    if (!saved) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(saved) as LastBooking;
+    } catch {
+        return null;
+    }
 };
 
 const BookingSuccess = () => {
-    const [booking, setBooking] = useState<LastBooking | null>(null);
-
-    useEffect(() => {
-        const saved = localStorage.getItem("last_booking");
-
-        if (!saved) {
-            return;
-        }
-
-        try {
-            setBooking(JSON.parse(saved) as LastBooking);
-        } catch {
-            setBooking(null);
-        }
-    }, []);
-
-    if (!booking) {
-        return (
-            <div className="flex min-h-[600px] items-center justify-center bg-white px-4 font-['Nunito_Sans']">
-                <div className="text-center">
-                    <h1 className="mb-3 text-2xl font-extrabold text-[#581ADB]">
-                        Booking completed
-                    </h1>
-
-                    <p className="mb-6 text-sm text-[#717171]">
-                        Your booking was successfully created.
-                    </p>
-
-                    <Link
-                        to="/account"
-                        className="inline-block rounded-full bg-[#581ADB] px-8 py-3 text-sm font-bold text-white"
-                    >
-                        Open account
-                    </Link>
-                </div>
-            </div>
+    const [booking] =
+        useState<LastBooking | null>(
+            getLastBooking
         );
-    }
 
     const printConfirmation = () => {
         window.print();
     };
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] px-4 py-10 font-['Nunito_Sans']">
-            <div className="mx-auto max-w-[850px]">
+        <div className="flex min-h-screen items-center justify-center bg-[#FAFAFA] px-4 py-10 font-['Nunito_Sans']">
+            <div className="w-full max-w-[520px] rounded-[24px] border border-[#E5E5E5] bg-white p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] sm:p-8">
 
-                <div className="mb-6 text-center print:hidden">
-                    <p className="mb-2 text-sm font-bold text-[#581ADB]">
-                        ✓ Booking completed
-                    </p>
-
-                    <h1 className="text-3xl font-extrabold text-[#202020]">
-                        Your booking is confirmed
-                    </h1>
-
-                    <p className="mt-2 text-sm text-[#717171]">
-                        A confirmation has been created for your booking.
+                {/* Logo */}
+                <div className="text-center">
+                    <p className="text-lg font-extrabold text-[#581ADB]">
+                        Hotel for you.
                     </p>
                 </div>
 
-                <div
-                    className="rounded-[16px] border border-[#E5E5E5] bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.06)] sm:p-8"
-                >
-                    <div className="flex items-center justify-between border-b border-[#EEEEEE] pb-5">
-                        <div>
-                            <p className="text-[11px] uppercase text-[#717171]">
-                                Booking confirmation
-                            </p>
-
-                            <h2 className="mt-1 text-xl font-extrabold text-[#581ADB]">
-                                {booking.hotelName}
-                            </h2>
-                        </div>
-
-                        <div className="text-right text-sm text-[#717171]">
-                            {booking.bookingId && (
-                                <p>
-                                    Booking #{booking.bookingId}
-                                </p>
-                            )}
-
-                            <p>
-                                {booking.city}, {booking.country}
-                            </p>
-                        </div>
+                {/* Success */}
+                <div className="my-7 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-2xl text-green-600">
+                        ✓
                     </div>
 
-                    <div className="flex flex-col gap-5 border-b border-[#EEEEEE] py-6 sm:flex-row">
-                        <img
-                            src={getImageUrl(booking.roomImageUrl)}
-                            alt={booking.roomTitle}
-                            className="h-[180px] w-full rounded-[10px] object-cover sm:w-[260px]"
-                        />
+                    <h1 className="mt-4 text-2xl font-extrabold text-[#222]">
+                        Thank you{" "}
+                        {booking?.firstName ||
+                            "for booking"}!
+                    </h1>
 
-                        <div className="flex-1">
-                            <h3 className="text-lg font-bold text-[#202020]">
-                                {booking.roomTitle}
-                            </h3>
+                    <p className="mt-2 text-sm font-semibold text-green-600">
+                        Your booking has been successfully confirmed!
+                    </p>
+                </div>
 
-                            <p className="mt-2 text-sm text-[#717171]">
-                                Bed: {booking.bedType}
-                            </p>
+                {/* Information */}
+                <div className="mb-6 rounded-2xl bg-[#FAFAFA] p-5">
+                    <p className="flex items-start gap-3 text-sm leading-5 text-[#666]">
+                        <span className="font-bold text-green-600">
+                            ✓
+                        </span>
 
-                            <p className="mt-1 text-sm text-[#717171]">
-                                ${booking.pricePerNight} / night
-                            </p>
+                        <span>
+                            <strong className="text-[#222]">
+                                {booking?.hotelName ||
+                                    "Your hotel"}
+                            </strong>{" "}
+                            is waiting for you on{" "}
+                            <strong className="text-[#222]">
+                                {booking?.checkIn ||
+                                    "your check-in date"}
+                            </strong>
+                            .
+                        </span>
+                    </p>
 
-                            <div className="mt-5 grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-[11px] uppercase text-[#999999]">
-                                        Check-in
-                                    </p>
+                    <p className="mt-4 flex items-start gap-3 text-sm leading-5 text-[#666]">
+                        <span className="font-bold text-green-600">
+                            ✓
+                        </span>
 
-                                    <p className="mt-1 font-bold text-[#202020]">
-                                        {booking.checkIn}
-                                    </p>
-                                </div>
+                        <span>
+                            The payment for the booking is
+                            made upon arrival at the hotel.
+                        </span>
+                    </p>
 
-                                <div>
-                                    <p className="text-[11px] uppercase text-[#999999]">
-                                        Check-out
-                                    </p>
+                    <p className="mt-4 flex items-start gap-3 text-sm leading-5 text-[#666]">
+                        <span className="font-bold text-green-600">
+                            ✓
+                        </span>
 
-                                    <p className="mt-1 font-bold text-[#202020]">
-                                        {booking.checkOut}
-                                    </p>
-                                </div>
+                        <span>
+                            You can contact the hotel manager
+                            if you need to change or cancel
+                            your booking.
+                        </span>
+                    </p>
+
+                    <p className="mt-4 flex items-start gap-3 text-sm leading-5 text-[#666]">
+                        <span className="font-bold text-green-600">
+                            ✓
+                        </span>
+
+                        <span>
+                            Your booking information is
+                            available in your account.
+                        </span>
+                    </p>
+                </div>
+
+                {/* Booking details */}
+                {booking && (
+                    <div className="mb-6 border-t border-[#EEEEEE] pt-5">
+                        <p className="text-[11px] font-bold uppercase tracking-wide text-[#999]">
+                            Booking details
+                        </p>
+
+                        <div className="mt-3 space-y-2 text-sm">
+                            <div className="flex justify-between gap-4">
+                                <span className="text-[#777]">
+                                    Room
+                                </span>
+
+                                <span className="text-right font-bold text-[#222]">
+                                    {booking.roomTitle}
+                                </span>
+                            </div>
+
+                            <div className="flex justify-between gap-4">
+                                <span className="text-[#777]">
+                                    Check-in
+                                </span>
+
+                                <span className="font-bold text-[#222]">
+                                    {booking.checkIn}
+                                </span>
+                            </div>
+
+                            <div className="flex justify-between gap-4">
+                                <span className="text-[#777]">
+                                    Check-out
+                                </span>
+
+                                <span className="font-bold text-[#222]">
+                                    {booking.checkOut}
+                                </span>
+                            </div>
+
+                            <div className="flex justify-between gap-4">
+                                <span className="text-[#777]">
+                                    Guests
+                                </span>
+
+                                <span className="font-bold text-[#222]">
+                                    {booking.adults} adults,{" "}
+                                    {booking.children} children
+                                </span>
+                            </div>
+
+                            <div className="mt-3 flex items-center justify-between border-t border-[#EEEEEE] pt-3">
+                                <span className="font-bold text-[#222]">
+                                    Total price
+                                </span>
+
+                                <span className="text-xl font-extrabold text-[#581ADB]">
+                                    ${booking.total}
+                                </span>
                             </div>
                         </div>
                     </div>
+                )}
 
-                    <div className="border-b border-[#EEEEEE] py-5">
-                        <h3 className="mb-4 font-bold text-[#202020]">
-                            Guest
+                {/* PDF */}
+                <button
+                    type="button"
+                    onClick={printConfirmation}
+                    className="mb-4 flex h-12 w-full items-center justify-center rounded-full bg-[#581ADB] text-sm font-bold text-white shadow-[0_4px_15px_rgba(88,26,219,0.25)] transition hover:bg-violet-800"
+                >
+                    Save PDF confirmation
+                </button>
+
+                {/* Navigation */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <Link
+                        to="/account"
+                        className="flex h-12 items-center justify-center rounded-full border border-[#581ADB] text-sm font-bold text-[#581ADB] transition hover:bg-violet-50"
+                    >
+                        Open account
+                    </Link>
+
+                    <Link
+                        to="/"
+                        className="flex h-12 items-center justify-center rounded-full border border-[#DDDDDD] text-sm font-bold text-[#333] transition hover:bg-[#FAFAFA]"
+                    >
+                        Back to hotels
+                    </Link>
+                </div>
+
+                {/* Hotel */}
+                {booking && (
+                    <div className="mt-6 border-t border-[#EEEEEE] pt-5 text-center">
+                        <div className="mb-1 text-xs tracking-widest text-[#E4B900]">
+                            ★★★★
+                        </div>
+
+                        <h3 className="text-sm font-extrabold text-[#222]">
+                            {booking.hotelName}
                         </h3>
 
-                        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-                            <p>
-                                <span className="text-[#717171]">
-                                    Name:
-                                </span>{" "}
-                                {booking.firstName} {booking.lastName}
-                            </p>
-
-                            <p>
-                                <span className="text-[#717171]">
-                                    Email:
-                                </span>{" "}
-                                {booking.email}
-                            </p>
-
-                            <p>
-                                <span className="text-[#717171]">
-                                    Phone:
-                                </span>{" "}
-                                {booking.phone}
-                            </p>
-
-                            <p>
-                                <span className="text-[#717171]">
-                                    Guests:
-                                </span>{" "}
-                                {booking.adults} adults, {booking.children} children
-                            </p>
-                        </div>
+                        <p className="mt-1 text-[11px] text-[#999]">
+                            Booking #{booking.bookingId}
+                        </p>
                     </div>
-
-                    <div className="flex items-center justify-between py-5">
-                        <span className="font-bold text-[#202020]">
-                            Total price
-                        </span>
-
-                        <span className="text-2xl font-extrabold text-[#581ADB]">
-                            ${booking.total}
-                        </span>
-                    </div>
-
-                    <div className="mt-3 grid grid-cols-1 gap-3 print:hidden sm:grid-cols-3">
-                        <button
-                            type="button"
-                            onClick={printConfirmation}
-                            className="h-[48px] rounded-full bg-[#581ADB] text-sm font-bold text-white transition hover:bg-violet-800"
-                        >
-                            Save PDF confirmation
-                        </button>
-
-                        <Link
-                            to="/account"
-                            className="flex h-[48px] items-center justify-center rounded-full border border-[#581ADB] text-sm font-bold text-[#581ADB] transition hover:bg-violet-50"
-                        >
-                            Open account
-                        </Link>
-
-                        <Link
-                            to="/"
-                            className="flex h-[48px] items-center justify-center rounded-full border border-[#DDDDDD] text-sm font-bold text-[#303030] transition hover:bg-gray-50"
-                        >
-                            Back to hotels
-                        </Link>
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );

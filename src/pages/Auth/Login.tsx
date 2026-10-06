@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { apiFetch, readError, API_URL } from "@/api";
-import { useAuth } from "@/context/useAuth";
+import { apiFetch, readError } from "@/api";
+import { API_URL } from "@/api";
 import { type SubmitHandler, useForm } from "react-hook-form";
 
 type LoginPageProps = {
     onRegister: () => void;
-    onSuccess: () => void;
+    onVerify: (email: string) => void;
 };
 
 type LogInFormData = {
@@ -14,10 +13,7 @@ type LogInFormData = {
     password: string;
 };
 
-const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
-    const navigate = useNavigate();
-    const { login } = useAuth();
-
+const Login = ({ onRegister, onVerify }: LoginPageProps) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -46,17 +42,11 @@ const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
 
             const resp = await response.json();
 
-            login(
-                {
-                    name: resp.name,
-                    email: resp.email,
-                },
-                resp.accessToken,
-                resp.refreshToken
-            );
+            if (!resp.email) {
+                throw new Error("Email was not returned by server.");
+            }
 
-            onSuccess();
-            navigate("/account");
+            onVerify(resp.email);
         } catch (error) {
             setError(
                 error instanceof Error
@@ -127,7 +117,11 @@ const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
                     )}
                 </div>
 
-                {error && <p className="error">{error}</p>}
+                {error && (
+                    <p className="mb-3 px-4 text-xs text-red-500">
+                        {error}
+                    </p>
+                )}
 
                 <button
                     type="submit"
@@ -138,7 +132,7 @@ const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
                 </button>
 
                 <div className="mt-2 text-center text-sm text-neutral-500">
-                    Do not have an account?{" "}
+                    Do not have an account{" "}
                     <button
                         type="button"
                         onClick={onRegister}
@@ -148,7 +142,7 @@ const Login = ({ onRegister, onSuccess }: LoginPageProps) => {
                     </button>
                 </div>
 
-                <div className="mt-9 mb-14 space-y-5">
+                <div className="mb-14 mt-9 space-y-5">
                     <button
                         type="button"
                         onClick={loginWithGoogle}

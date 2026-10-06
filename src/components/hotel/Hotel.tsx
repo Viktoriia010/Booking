@@ -44,7 +44,6 @@ const Hotel = ({ hotel }: { hotel: HotelType }) => {
                     className="block h-full w-full object-cover"
                 />
 
-                {/* Favorite */}
                 <button
                     type="button"
                     className="absolute left-2 top-2 p-1 cursor-pointer rounded-md"
@@ -54,7 +53,7 @@ const Hotel = ({ hotel }: { hotel: HotelType }) => {
                 </button>
 
 
-                {/* Slider dots */}
+
                 {hotel.images.length > 1 && (
                     <div className="absolute bottom-3.5 left-1/2 flex -translate-x-1/2 gap-2">
                         {hotel.images.map((_, index) => (
@@ -73,12 +72,12 @@ const Hotel = ({ hotel }: { hotel: HotelType }) => {
                 )}
             </div>
 
-            {/* Hotel name */}
+
             <div className="mt-1.5 truncate text-[16px] font-medium">
                 {hotel.name} | {hotel.city} | {hotel.country}
             </div>
 
-            {/* Rating */}
+
             <div className=" flex items-center ">
                 {Array.from({ length: 5 }).map((_, index) => (
                     <img
@@ -94,12 +93,11 @@ const Hotel = ({ hotel }: { hotel: HotelType }) => {
                 ))}
             </div>
 
-            {/* Location */}
+
             <div className=" text-[16px] text-gray-500">
                 the city center · 116 m
             </div>
 
-            {/* Price */}
             <div className="text-[16px] font-extrabold">
                 ${hotel.price}{" "}
 

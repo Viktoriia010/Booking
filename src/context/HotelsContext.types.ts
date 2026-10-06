@@ -7,32 +7,54 @@ export type Room = {
     bedType: string;
     capacity: number;
     pricePerNight: number;
-    imageUrl: string;
     isAvailable: boolean;
+    imageUrl: string;
 };
 
 export type Review = {
     id: string;
+    userId: string;
     hotelId: string;
-    authorName: string;
     rating: number;
     text: string;
-    createdAt?: string;
+    authorName: string | null;
+    authorAvatarUrl?: string | null;
+    createdAt: string;
 };
 
 export type Hotel = {
     id: string;
     name: string;
+    address: string;
     city: string;
     country: string;
     description: string;
+    stars: number;
+    hotelType: string;
+    hotelChain: string;
+    attractions: string;
+    latitude: number;
+    longitude: number;
+    mapUrl: string;
+    isPopular: boolean;
+    isCityCentre: boolean;
+    isPopularPlace: boolean;
+    nearMetro: boolean;
+    nearAirport: boolean;
+    nearStation: boolean;
+    facilities: number;
+    staff: number;
+    cleanliness: number;
+    comfort: number;
+    location: number;
+    valueForMoney: number;
     rating: number;
     reviewsCount: number;
     mainImageUrl: string;
     images: string[];
+    rooms: Room[];
     amenities: string[];
     hasWifi: boolean | null;
-    rooms: Room[];
     reviews: Review[];
 };
 
@@ -45,15 +67,16 @@ export type SearchData = {
     rooms: number;
 };
 
+export type HotelsResponse = {
+    totalCount: number;
+    hotels: Hotel[];
+};
+
 export type HotelsContextType = {
     hotels: Hotel[];
-    selectedHotel: Hotel | null;
-    setSelectedHotel: React.Dispatch<
-        React.SetStateAction<Hotel | null>
-    >;
     loading: boolean;
     error: string;
-    loadHotels: (searchData?: SearchData) => Promise<void>;
+    loadHotels: (data?: SearchData) => Promise<void>;
     loadHotel: (id: string) => Promise<Hotel | null>;
     addReview: (
         hotelId: string,
@@ -62,6 +85,5 @@ export type HotelsContextType = {
     ) => Promise<void>;
 };
 
-export const HotelsContext = createContext<
-    HotelsContextType | undefined
->(undefined);
+export const HotelsContext =
+    createContext<HotelsContextType | null>(null);

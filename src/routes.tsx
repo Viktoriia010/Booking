@@ -3,10 +3,18 @@ import Layout from "@/components/layout/Layout.tsx";
 import { ProtectedRoute } from "@/components/ProtectedRoute.tsx";
 import ErrorPage from "@/pages/ErrorPage.tsx";
 import Home from "@/pages/Home.tsx";
+import HotelPage from "@/pages/HotelPage.tsx";
 import AccountPage from "@/pages/AccountPage.tsx";
+import PaymentMethodPage from "@/pages/PaymentMethodPage.tsx";
+import TravelInformationPage from "@/pages/Information.tsx";
+import NewslettersPage from "@/pages/NewslettersPage.tsx";
+import SecurityPage from "@/pages/SecurityPage.tsx";
 import GoogleCallback from "@/pages/Auth/GoogleCallback.tsx";
+import Information from "@/pages/Auth/Information.tsx";
+import AllDone from "@/pages/Auth/AllDone.tsx";
 import BookingPage from "@/pages/Booking/BookingPage.tsx";
 import BookingSuccess from "@/pages/Booking/BookingSuccess.tsx";
+import BookingInfoPage from "@/pages/Booking/BookingInfoPage.tsx";
 export const routes = createBrowserRouter([
     {
         path: "/",
@@ -22,15 +30,47 @@ export const routes = createBrowserRouter([
                 Component: GoogleCallback,
             },
             {
+                path: "hotel/:hotelId",
+                Component: HotelPage,
+            },
+            {
                 Component: ProtectedRoute,
                 children: [
+                    {
+                        path: "information",
+                        Component: Information,
+                    },
+                    {
+                        path: "all-done",
+                        Component: AllDone,
+                    },
                     {
                         path: "account",
                         Component: AccountPage,
                     },
                     {
+                        path: "payment-method",
+                        Component: PaymentMethodPage,
+                    },
+                    {
+                        path: "travel-information",
+                        Component: TravelInformationPage,
+                    },
+                    {
+                        path: "newsletters",
+                        Component: NewslettersPage,
+                    },
+                    {
+                        path: "security",
+                        Component: SecurityPage,
+                    },
+                    {
                         path: "booking/:roomId",
                         Component: BookingPage,
+                    },
+                    {
+                        path: "booking-info",
+                        Component: BookingInfoPage,
                     },
                     {
                         path: "booking-success",

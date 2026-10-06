@@ -20,7 +20,7 @@ export function HotelsProvider({
 
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(20);
+    const [pageSize, setPageSize] = useState(7);
 
 
     const loadRandomHotels = async () => {
@@ -128,7 +128,7 @@ export function HotelsProvider({
 
             params.append(
                 "pageSize",
-                String(searchData?.pageSize ?? 20)
+                String(searchData?.pageSize ?? 7)
             );
 
             const response = await apiFetch(

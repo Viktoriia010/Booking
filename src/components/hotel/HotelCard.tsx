@@ -24,7 +24,8 @@ const HotelCard = ({ hotel }: { hotel: Hotel}) => {
         )
         : 0;
 
-    function likeProduct() {
+    function likeProduct(e: React.MouseEvent<HTMLButtonElement>) {
+        e.stopPropagation();
         const selected = JSON.parse(
             localStorage.getItem("selected") || "[]"
         );
@@ -51,10 +52,12 @@ const HotelCard = ({ hotel }: { hotel: Hotel}) => {
         }
     }
 
+
+
     return (
         <div onClick={() => navigate(`/hotel/${hotel.id}`)} className="w-full max-w-[272px] text-[#222] font-['Nunito_Sans'] cursor-pointer">
 
-            <div className="relative aspect-[1/0.9] overflow-hidden rounded-[15px]">
+            <div className="group  relative aspect-[1/0.9] overflow-hidden rounded-[15px]">
 
                 <img
                     src={
@@ -77,21 +80,98 @@ const HotelCard = ({ hotel }: { hotel: Hotel}) => {
                     />
                 </button>
 
+                {/*{hotel.images.length > 1 && (*/}
+                {/*    <div className="absolute bottom-3.5 left-1/2 flex -translate-x-1/2 gap-2">*/}
+                {/*        {hotel.images.map((_, index) => (*/}
+                {/*            <button*/}
+                {/*                key={index}*/}
+                {/*                type="button"*/}
+                {/*                onClick={(e) => changeImage(e, index)}*/}
+                {/*                className={`h-[9px] w-[9px] rounded-full ${*/}
+                {/*                    index === currentImage*/}
+                {/*                        ? "bg-white"*/}
+                {/*                        : "bg-white/55"*/}
+                {/*                }`}*/}
+                {/*            />*/}
+                {/*        ))}*/}
+                {/*    </div>*/}
+                {/*)}*/}
+
+                {/* Previous image */}
                 {hotel.images.length > 1 && (
-                    <div className="absolute bottom-3.5 left-1/2 flex -translate-x-1/2 gap-2">
-                        {hotel.images.map((_, index) => (
-                            <button
-                                key={index}
-                                type="button"
-                                onClick={() => setCurrentImage(index)}
-                                className={`h-[9px] w-[9px] rounded-full ${
-                                    index === currentImage
-                                        ? "bg-white"
-                                        : "bg-white/55"
-                                }`}
-                            />
-                        ))}
-                    </div>
+                    <>
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+
+                                setCurrentImage((prev) =>
+                                    prev === 0
+                                        ? hotel.images.length - 1
+                                        : prev - 1
+                                );
+                            }}
+                            className="
+                    absolute left-2 top-1/2 z-10
+                    flex h-6 w-6 -translate-y-1/2
+                    items-center justify-center
+                    rounded-full bg-white/90
+                    text-xl text-[#222]
+                    duration-500
+                    opacity-0 transition-opacity
+                    group-hover:opacity-75
+                    cursor-pointer
+                "
+                        >
+                            ‹
+                        </button>
+
+                        {/* Next image */}
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+
+                                setCurrentImage((prev) =>
+                                    prev === hotel.images.length - 1
+                                        ? 0
+                                        : prev + 1
+                                );
+                            }}
+                            className="
+                    absolute right-2 top-1/2 z-10
+                    flex h-6 w-6 -translate-y-1/2
+                    items-center justify-center
+                    rounded-full bg-white/90
+                    text-xl text-[#222]
+                    opacity-0 transition-opacity
+                    duration-500
+                    group-hover:opacity-75
+                    cursor-pointer
+                "
+                        >
+                            ›
+                        </button>
+
+                        {/* Dots */}
+                        <div className="absolute bottom-3.5 left-1/2 flex -translate-x-1/2 gap-2">
+                            {hotel.images.map((_, index) => (
+                                <button
+                                    key={index}
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setCurrentImage(index);
+                                    }}
+                                    className={`h-[9px] w-[9px] cursor-pointer rounded-full ${
+                                        index === currentImage
+                                            ? "bg-white"
+                                            : "bg-white/55"
+                                    }`}
+                                />
+                            ))}
+                        </div>
+                    </>
                 )}
             </div>
 

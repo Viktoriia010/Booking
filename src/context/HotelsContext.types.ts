@@ -74,7 +74,7 @@ export type HotelFilters = {
     types?: string[];
     chainIds?: number[];
     amenities?: string[];
-    sort?: string;
+    sort?: "rating" | "price-asc" | "price-desc";
 
     page?: number;
     pageSize?: number;

@@ -23,8 +23,9 @@ export default function Home() {
     const [modal, setModal] = useState<"login" | "register" | "verify" | "info" | "all-done" |null>(null);
     const [verificationData, setVerificationData] = useState({
         email: "",
-        verificationCode: "",
+        purpose: "",
     });
+
     console.log("VERIFICATION DATA:", verificationData);
 
     const {
@@ -329,15 +330,14 @@ export default function Home() {
             >
                 {modal === "register" && (
                     <Register
-                        onRegister={(email, verificationCode) => {
+                        onRegister={(email) => {
                             setVerificationData({
                                 email,
-                                verificationCode,
+                                purpose: "Register",
                             });
 
                             setModal("verify");
-                        }
-                        }
+                        }}
                         onLogin={() => setModal("login")}
                     />
                 )}
@@ -345,14 +345,21 @@ export default function Home() {
                 {modal === "login" && (
                     <Login
                         onRegister={() => setModal("register")}
-                        onSuccess={closeModal}
+                        onVerify={(email) => {
+                            setVerificationData({
+                                email,
+                                purpose: "Login",
+                            });
+
+                            setModal("verify");
+                        }}
                     />
                 )}
 
                 {modal === "verify" && (
                     <VerifyCode
                         email={verificationData.email}
-                        verificationCode={verificationData.verificationCode}
+                        purpose="Register"
                         onSuccess={() => setModal("info")}
                     />
                 )}

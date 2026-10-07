@@ -3,7 +3,7 @@ import type { Hotel } from "../../context/HotelsContext.types";
 import { useHotels } from "../../hooks/useHotels.ts";
 import SearchForm from "../../components/hotels/SearchForm";
 import HotelFilters from "../../components/hotels/HotelFilters";
-import HotelCard from "../../components/hotels/HotelCard";
+import HotelSearchCard from "../../components/hotels/HotelSearchCard.tsx";
 import type { SearchData } from "../../context/HotelsContext.types";
 import HotelDetailsModal from "../../components/hotels/HotelDetailsModal";
 
@@ -124,7 +124,7 @@ const HomePage = () => {
                 ) : (
                     <div className="hotel-list">
                         {visibleHotels.map(hotel => (
-                            <HotelCard
+                            <HotelSearchCard
                                 key={hotel.id}
                                 hotel={hotel}
                                 onChoose={setSelectedHotel}

@@ -7,10 +7,7 @@ import Modal from "@/components/modal/Modal.tsx";
 import Login from "@/pages/Auth/Login.tsx";
 import Register from "@/pages/Auth/Register.tsx";
 import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
-// import { useHotels } from "@/hooks/useHotels.ts";
 import SearchForm from "@/components/hotels/SearchForm.tsx";
-//import HotelCard from "@/components/hotels/HotelCard.tsx";
-//import HotelDetailsModal from "@/components/hotels/HotelDetailsModal.tsx";
 import type { SearchData } from "@/context/HotelsContext.types.ts";
 import Information from "@/pages/Auth/Information.tsx";
 import AllDone from "@/pages/Auth/AllDone.tsx";
@@ -19,7 +16,6 @@ import {apiFetch} from "@/api.ts";
 import Review from "@/components/reviews/Review.tsx";
 import type { Review as ReviewType } from "@/context/HotelsContext.types";
 import {useNavigate} from "react-router-dom";
-// import HotelCard from "@/components/hotel/HotelCard.tsx";
 
 //зробити вибір дат по календарю
 
@@ -37,6 +33,7 @@ export default function Home() {
         error,
         loadRandomHotels,
         loadHotels,
+        loadFilters
     } = useHotels();
     const [reviews, setReviews] = useState<ReviewType[]>([]);
 
@@ -69,7 +66,11 @@ export default function Home() {
     const navigate = useNavigate();
 
     const search = async (data: SearchData) => {
-        await loadHotels(data);
+        await Promise.all([
+            loadHotels(data),
+            loadFilters(data),
+        ]);
+
         navigate("/search");
     };
 

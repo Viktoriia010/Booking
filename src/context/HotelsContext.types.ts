@@ -66,18 +66,8 @@ export type HotelFiltersResponse = {
     types: HotelTypeFilter[];
     chains: ChainFilter[];
     amenities: AmenityFilter[];
-};
-
-export type HotelFilters = {
-    minRating?: number;
-    stars?: number;
-    types?: string[];
-    chainIds?: number[];
-    amenities?: string[];
-    sort?: "rating" | "price-asc" | "price-desc";
-
-    page?: number;
-    pageSize?: number;
+    minPrice: number;
+    maxPrice: number;
 };
 
 export type SearchData = {
@@ -93,6 +83,9 @@ export type SearchData = {
     types?: string[];
     chainIds?: number[];
     amenities?: string[];
+
+    minPrice?: number;
+    maxPrice?: number;
 
     sort?: "rating" | "price-asc" | "price-desc";
 
@@ -110,6 +103,8 @@ export type Hotel = {
     type: string;
     stars: number;
     rating: number;
+
+
     reviewsCount: number;
     facilities: number;
     staff: number;
@@ -163,6 +158,10 @@ export type HotelsContextType = {
     loadHotel: (
         id: string
     ) => Promise<Hotel | null>;
+
+    applyFilters: (
+        changes: Partial<SearchData>
+    ) => Promise<void>;
 
     loadRandomHotels: () => Promise<void>;
 

@@ -13,6 +13,7 @@ const SearchPage = ()=>{
         loading,
         error,
         searchData,
+        applyFilters,
         loadHotels,
         loadFilters,
         filters,
@@ -83,6 +84,8 @@ const SearchPage = ()=>{
             totalPages,
         ];
     };
+
+
 
     const pageNumbers = getPageNumbers();
 
@@ -222,17 +225,7 @@ const SearchPage = ()=>{
                             <HotelFiltersSidebar
                                 filters={filters}
                                 searchData={searchData}
-                                onApply={(nextFilters) => {
-                                    if (!searchData) {
-                                        return;
-                                    }
-
-                                    void loadHotels({
-                                        ...searchData,
-                                        ...nextFilters,
-                                        page: 1,
-                                    });
-                                }}
+                                onApply={applyFilters}
                             />
                         </aside>
 

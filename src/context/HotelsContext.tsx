@@ -48,155 +48,174 @@ export function HotelsProvider({
         }
     };
 
-    const loadHotels = async (searchData?: SearchData) => {
+    const buildSearchParams = (
+        searchData?: SearchData) => {
+        const params = new URLSearchParams();
+
+        if (searchData?.search) {
+            params.append(
+                "search",
+                searchData.search,
+            );
+        }
+
+        params.append(
+            "adults",
+            String(searchData?.adults ?? 0),
+        );
+
+        params.append(
+            "children",
+            String(searchData?.children ?? 0),
+        );
+
+        params.append(
+            "rooms",
+            String(searchData?.rooms ?? 0),
+        );
+
+        if (searchData?.checkIn) {
+            params.append(
+                "checkIn",
+                searchData.checkIn,
+            );
+        }
+
+        if (searchData?.checkOut) {
+            params.append(
+                "checkOut",
+                searchData.checkOut,
+            );
+        }
+
+        if (searchData?.minRating !== undefined) {
+            params.append(
+                "minRating",
+                String(searchData.minRating),
+            );
+        }
+
+        if (searchData?.stars !== undefined) {
+            params.append(
+                "stars",
+                String(searchData.stars),
+            );
+        }
+
+        searchData?.types?.forEach((type) => {
+            params.append("types", type);
+        });
+
+        searchData?.chainIds?.forEach((id) => {
+            params.append(
+                "chainIds",
+                String(id),
+            );
+        });
+
+        searchData?.amenities?.forEach((amenity) => {
+            params.append(
+                "amenities",
+                amenity,
+            );
+        });
+
+        if (searchData?.sort) {
+            params.append(
+                "sort",
+                searchData.sort,
+            );
+        }
+
+        if (searchData?.minPrice !== undefined) {
+            params.append(
+                "minPrice",
+                String(searchData.minPrice),
+            );
+        }
+
+        if (searchData?.maxPrice !== undefined) {
+            params.append(
+                "maxPrice",
+                String(searchData.maxPrice),
+            );
+        }
+
+
+        return params;
+    };
+
+
+    const loadHotels = async (
+        searchData?: SearchData,
+    ) => {
         setLoading(true);
         setError("");
+
         if (searchData) {
             setSearchData(searchData);
         }
 
         try {
-            const params = new URLSearchParams();
-
-            if (searchData?.search) {
-                params.append("search", searchData.search);
-            }
-
-            params.append(
-                "adults",
-                String(searchData?.adults ?? 0)
-            );
-
-            params.append(
-                "children",
-                String(searchData?.children ?? 0)
-            );
-
-            params.append(
-                "rooms",
-                String(searchData?.rooms ?? 0)
-            );
-
-            if (searchData?.checkIn) {
-                params.append("checkIn", searchData.checkIn);
-            }
-
-            if (searchData?.checkOut) {
-                params.append("checkOut", searchData.checkOut);
-            }
-
-            if (searchData?.minRating !== undefined) {
-                params.append(
-                    "minRating",
-                    String(searchData.minRating)
-                );
-            }
-
-            if (searchData?.stars !== undefined) {
-                params.append(
-                    "stars",
-                    String(searchData.stars)
-                );
-            }
-
-            if (searchData?.types?.length) {
-                searchData.types.forEach(type => {
-                    params.append("types", type);
-                });
-            }
-
-            if (searchData?.chainIds?.length) {
-                searchData.chainIds.forEach(id => {
-                    params.append("chainIds", String(id));
-                });
-            }
-
-            if (searchData?.amenities?.length) {
-                searchData.amenities.forEach(amenity => {
-                    params.append("amenities", amenity);
-                });
-            }
-
-            if (searchData?.sort) {
-                params.append("sort", searchData.sort);
-            }
+            const params = buildSearchParams(
+                searchData);
 
             params.append(
                 "page",
-                String(searchData?.page ?? 1)
+                String(searchData?.page ?? 1),
             );
 
             params.append(
                 "pageSize",
-                String(searchData?.pageSize ?? 7)
+                String(searchData?.pageSize ?? 7),
             );
 
             const response = await apiFetch(
-                `/Hotel?${params.toString()}`
+                `/Hotel?${params.toString()}`,
             );
 
             if (!response.ok) {
-                throw new Error(await readError(response));
+                throw new Error(
+                    await readError(response),
+                );
             }
 
-            const data = await response.json() as HotelSearchResult;
-            // const data = await response.json() as Hotel[];
+            const data =
+                await response.json() as HotelSearchResult;
 
             setHotels(data.hotels);
             setTotal(data.total);
             setPage(data.page);
             setPageSize(data.pageSize);
-            // setHotels(data);
         } catch (error) {
             setError(
                 error instanceof Error
                     ? error.message
-                    : "Could not load hotels"
+                    : "Could not load hotels",
             );
         } finally {
             setLoading(false);
         }
     };
 
-    const loadFilters = async (searchData?: SearchData) => {
+
+    const loadFilters = async (
+        searchData?: SearchData,
+    ) => {
         setError("");
 
         try {
-            const params = new URLSearchParams();
-
-            if (searchData?.search) {
-                params.append("search", searchData.search);
-            }
-
-            params.append(
-                "adults",
-                String(searchData?.adults ?? 0)
-            );
-
-            params.append(
-                "children",
-                String(searchData?.children ?? 0)
-            );
-
-            params.append(
-                "rooms",
-                String(searchData?.rooms ?? 0)
-            );
-
-            if (searchData?.checkIn) {
-                params.append("checkIn", searchData.checkIn);
-            }
-
-            if (searchData?.checkOut) {
-                params.append("checkOut", searchData.checkOut);
-            }
+            const params = buildSearchParams(
+                searchData);
 
             const response = await apiFetch(
-                `/Hotel/filters?${params.toString()}`
+                `/Hotel/filters?${params.toString()}`,
             );
 
             if (!response.ok) {
-                throw new Error(await readError(response));
+                throw new Error(
+                    await readError(response),
+                );
             }
 
             const data =
@@ -208,11 +227,29 @@ export function HotelsProvider({
             setError(
                 error instanceof Error
                     ? error.message
-                    : "Could not load filters"
+                    : "Could not load filters",
             );
         }
     };
 
+    const applyFilters = async (
+        changes: Partial<SearchData>,
+    ) => {
+        if (!searchData) {
+            return;
+        }
+
+        const nextSearchData: SearchData = {
+            ...searchData,
+            ...changes,
+            page: 1,
+        };
+
+        await Promise.all([
+            loadHotels(nextSearchData),
+            loadFilters(nextSearchData),
+        ]);
+    };
 
     const loadHotel = async (id: string) => {
         const response = await apiFetch(`/Hotel/${id}`);
@@ -332,6 +369,7 @@ export function HotelsProvider({
                 total,
                 page,
                 pageSize,
+                applyFilters,
                 loadHotels,
                 loadRandomHotels,
                 loadFilters,

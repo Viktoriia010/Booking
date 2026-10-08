@@ -142,6 +142,22 @@ export type Hotel = {
 //     rooms: number;
 // };
 
+export type HotelFavorite = {
+    id: string;
+    name: string;
+    address: string;
+    city: string;
+    country: string;
+
+    stars: number;
+    rating: number;
+
+    mainImageUrl: string;
+    images: string[];
+
+    rooms: Room[];
+};
+
 export type HotelsResponse = {
     totalCount: number;
     hotels: Hotel[];

@@ -1,13 +1,14 @@
 import { useState} from "react";
-import type { Hotel } from "@/context/HotelsContext.types";
+import type {Hotel, HotelFavorite} from "@/context/HotelsContext.types";
 import star from "@/assets/like-star.svg"
 import starLiked from "@/assets/star-circle-fill.svg"
 import starRating from "@/assets/star-rounded.svg"
 import {useNavigate} from "react-router-dom";
+import {getImageUrl} from "@/api.ts";
 
 
 
-const HotelCard = ({ hotel }: { hotel: Hotel}) => {
+const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite}) => {
     const [currentImage, setCurrentImage] = useState(0);
     const navigate = useNavigate();
     const [liked, setLiked] = useState(() => {
@@ -62,8 +63,8 @@ const HotelCard = ({ hotel }: { hotel: Hotel}) => {
                 <img
                     src={
                         hotel.images.length > 0
-                            ? hotel.images[currentImage]
-                            : hotel.mainImageUrl
+                            ? getImageUrl(hotel.images[currentImage])
+                            : getImageUrl(hotel.mainImageUrl)
                     }
                     alt={hotel.name}
                     className="block h-full w-full object-cover"

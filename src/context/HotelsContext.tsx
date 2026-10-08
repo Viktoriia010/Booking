@@ -356,6 +356,8 @@ export function HotelsProvider({
         }
     };
 
+
+
     return (
         <HotelsContext.Provider
             value={{

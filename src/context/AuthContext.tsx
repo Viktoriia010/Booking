@@ -65,6 +65,8 @@ export function AuthProvider({
 
         setToken(newToken);
         setUser(normalizedUser);
+        setRefreshToken(newRefreshToken ?? null);
+
 
         localStorage.setItem(
             "accessToken",
@@ -77,15 +79,14 @@ export function AuthProvider({
                 normalizedUser
             )
         );
-
         if (newRefreshToken) {
-            setRefreshToken(
-                newRefreshToken
-            );
-
             localStorage.setItem(
                 "refreshToken",
                 newRefreshToken
+            );
+        } else {
+            localStorage.removeItem(
+                "refreshToken"
             );
         }
     };

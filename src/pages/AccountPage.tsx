@@ -3,6 +3,8 @@ import {useNavigate,} from "react-router-dom";
 import {apiFetch, getImageUrl, readError,} from "../api";
 import {useAuth,} from "../context/useAuth";
 import AccountTabs from "../components/account/AccountTabs";
+import HotelCard from "@/components/hotel/HotelCard.tsx";
+import type { HotelFavorite} from "@/context/HotelsContext.types.ts";
 
 type AccountData = {
     name: string;
@@ -14,6 +16,7 @@ type AccountData = {
     preferredCurrency: string;
     dateOfBirth: string;
 };
+
 
 type DateParts = {
     month: string;
@@ -184,6 +187,9 @@ const AccountPage = () => {
             []
         );
 
+    const [favoriteHotels, setFavoriteHotels] = useState<HotelFavorite[]>([]);
+
+
     const fileInputRef =
         useRef<HTMLInputElement>(
             null
@@ -194,6 +200,8 @@ const AccountPage = () => {
             navigate("/");
             return;
         }
+
+
 
         const loadAccount =
             async () => {
@@ -436,7 +444,6 @@ const AccountPage = () => {
                         )
                             ? result.hotels
                             : [];
-
                     const ownReviews: AccountReview[] =
                         [];
 
@@ -457,6 +464,7 @@ const AccountPage = () => {
                                     hotel.reviews
                                 )
                             ) {
+
                                 return;
                             }
 
@@ -502,6 +510,41 @@ const AccountPage = () => {
                 }
             };
 
+        const loadFavorites = async () => {
+            try {
+                const selected = JSON.parse(
+                    localStorage.getItem("likedHotels") || "[]"
+                ) as string[];
+
+                if (selected.length === 0) {
+                    setFavoriteHotels([]);
+                    return;
+                }
+                const params = new URLSearchParams();
+
+                selected.forEach(id => {
+                    params.append("ids", id);
+                });
+
+                const response = await apiFetch(
+                    `/Hotel/favorites?${params.toString()}`
+                );
+                if (!response.ok) {
+                    throw new Error(await readError(response));
+                }
+
+                const result = await response.json();
+                console.error(result);
+
+                setFavoriteHotels(result);
+            } catch (error) {
+                console.error(error);
+                setFavoriteHotels([]);
+            }
+        };
+
+        void loadFavorites();
+
         void loadAccount();
         void loadBookings();
         void loadReviews();
@@ -511,6 +554,7 @@ const AccountPage = () => {
         user?.email,
         user?.id,
     ]);
+
 
     const handleTextChange =
         (
@@ -1399,6 +1443,39 @@ const AccountPage = () => {
                                 )
                             )}
                         </div>
+                    )}
+                </section>
+
+                <section className="mt-7">
+                    <h2 className="text-[10px] font-bold uppercase tracking-wide text-[#999]">
+                        YOUR FAVORITES
+                    </h2>
+
+                    {favoriteHotels.length === 0 ? (
+                        <div className="mt-3 rounded-[14px] border border-[#E5E5E5] p-8 text-center">
+                            <div className="text-3xl">❤️</div>
+
+                            <h3 className="mt-2 text-sm font-extrabold text-[#222]">
+                                You have no favorite hotels
+                            </h3>
+
+                            <p className="mt-1 text-xs text-[#999]">
+                                Hotels you like will appear here.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto scrollbar-hide mt-4">
+                        <div className="grid gap-x-7 gap-y-9 px-3
+                             grid-flow-col w-auto
+                            ">
+                            {favoriteHotels.map((hotel) => (
+                                <HotelCard
+                                    key={hotel.id}
+                                    hotel={hotel}
+                                />
+                            ))}
+                        </div>
+                            </div>
                     )}
                 </section>
             </div>

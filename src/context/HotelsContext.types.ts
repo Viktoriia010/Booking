@@ -7,12 +7,13 @@ export type Room = {
     bedType: string;
     capacity: number;
     pricePerNight: number;
-    imageUrl: string;
     isAvailable: boolean;
+    imageUrl: string;
 };
 
 export type Review = {
     id: string;
+    userId: string;
     hotelId: string;
     authorName: string;
     authorAvatarUrl?: string;
@@ -102,16 +103,28 @@ export type Hotel = {
     description: string;
     type: string;
     stars: number;
-    rating: number;
-
-
-    reviewsCount: number;
+    hotelType: string;
+    hotelChain: string;
+    attractions: string;
+    latitude: number;
+    longitude: number;
+    mapUrl: string;
+    isPopular: boolean;
+    isCityCentre: boolean;
+    isPopularPlace: boolean;
+    nearMetro: boolean;
+    nearAirport: boolean;
+    nearStation: boolean;
     facilities: number;
     staff: number;
     cleanliness: number;
     comfort: number;
     location: number;
     valueForMoney: number;
+    rating: number;
+
+
+    reviewsCount: number;
     mainImageUrl: string;
     images: string[];
     amenities: string[];
@@ -128,6 +141,11 @@ export type Hotel = {
 //     children: number;
 //     rooms: number;
 // };
+
+export type HotelsResponse = {
+    totalCount: number;
+    hotels: Hotel[];
+};
 
 export type HotelsContextType = {
     hotels: Hotel[];
@@ -177,7 +195,5 @@ export type HotelsContextType = {
     ) => Promise<void>;
 };
 
-
-export const HotelsContext = createContext<
-    HotelsContextType | undefined
->(undefined);
+export const HotelsContext =
+    createContext<HotelsContextType | null>(null);

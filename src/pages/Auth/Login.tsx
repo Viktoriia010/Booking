@@ -141,7 +141,7 @@ const Login = ({ onRegister, onVerify }: LoginPageProps) => {
                     </button>
                 </div>
 
-                <div className="mb-14 mt-9 space-y-5">
+                <div className="mt-9 mb-14 space-y-5">
                     <button
                         type="button"
                         onClick={loginWithGoogle}

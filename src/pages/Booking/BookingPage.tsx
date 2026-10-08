@@ -1,405 +1,571 @@
-// import { useEffect, useState, type FormEvent } from "react";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-// import { apiFetch, getImageUrl, readError } from "../../api";
-import { apiFetch } from "@/api";
-import { useAuth } from "@/context/useAuth";
-import { useBooking } from "@/hooks/useBooking.ts";
-import type { Room } from "@/context/HotelsContext.types";
-import BookingRoom from "./BookingRoom";
+import {useEffect, useState,} from "react";
+import {useNavigate, useParams,} from "react-router-dom";
+import {apiFetch, getImageUrl,} from "../../api";
+import {useAuth,} from "../../context/useAuth";
+import {useBooking,} from "../../hooks/useBooking.ts";
+import type {Room,} from "../../context/HotelsContext.types";
 import BookingForm from "./BookingForm";
 
 type Hotel = {
-    rooms: Room[];
+    id: string;
+    name: string;
+    city: string;
+    country: string;
 };
 
 const BookingPage = () => {
-    const { roomId } = useParams();
-    const navigate = useNavigate();
-    const { isAuth } = useAuth();
-    // const { booking, updateBooking } = useBooking();
-    const { booking } = useBooking();
+    const {
+        roomId,
+    } = useParams();
 
-    const [room, setRoom] = useState<Room | null>(null);
-    // const [step, setStep] = useState(1);
-    // const [cardType, setCardType] = useState("Visa");
-    // const [cardNumber, setCardNumber] = useState("");
-    // const [expiry, setExpiry] = useState("");
-    // const [rules, setRules] = useState(false);
-    // const [error, setError] = useState("");
-    const [roomError, setRoomError] = useState("");
+    const navigate =
+        useNavigate();
+
+    const {
+        isAuth,
+    } = useAuth();
+
+    const {
+        booking,
+        updateBooking,
+    } = useBooking();
+
+    const [room, setRoom] =
+        useState<Room | null>(
+            null
+        );
+
+    const [hotelName, setHotelName] =
+        useState("");
+
+    const [hotelCity, setHotelCity] =
+        useState("");
+
+    const [hotelCountry, setHotelCountry] =
+        useState("");
+
+    const [roomError, setRoomError] =
+        useState("");
 
     useEffect(() => {
         if (!roomId) {
             return;
         }
 
-        const loadRoom = async () => {
-            try {
-                const response = await apiFetch("/Hotel");
+        const loadRoom =
+            async () => {
+                try {
+                    const roomResponse =
+                        await apiFetch(
+                            `/Room/${roomId}`
+                        );
 
-                if (!response.ok) {
-                    throw new Error("Could not load hotels");
-                }
+                    if (
+                        !roomResponse.ok
+                    ) {
+                        throw new Error(
+                            "Could not load room."
+                        );
+                    }
 
-                const hotels = await response.json() as Hotel[];
+                    const loadedRoom =
+                        (await roomResponse.json()) as Room;
 
-                for (const hotel of hotels) {
-                    const found = hotel.rooms.find(
-                        item => item.id === roomId
+                    setRoom(
+                        loadedRoom
                     );
 
-                    if (found) {
-                        setRoom(found);
-                        return;
-                    }
-                }
+                    const hotelResponse =
+                        await apiFetch(
+                            `/Hotel/${loadedRoom.hotelId}`
+                        );
 
-                setRoomError("Room not found.");
-            } catch {
-                setRoomError("Could not load room.");
-            }
-        };
+                    if (
+                        hotelResponse.ok
+                    ) {
+                        const hotel =
+                            (await hotelResponse.json()) as Hotel;
+
+                        setHotelName(
+                            hotel.name
+                        );
+
+                        setHotelCity(
+                            hotel.city
+                        );
+
+                        setHotelCountry(
+                            hotel.country
+                        );
+                    }
+                } catch {
+                    setRoomError(
+                        "Could not load room."
+                    );
+                }
+            };
 
         void loadRoom();
     }, [roomId]);
 
-    // useEffect(() => {
-    //     if (!roomId) return;
-    //
-    //     apiFetch(`/Room/${roomId}`)
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw new Error("Could not load room");
-    //             }
-    //
-    //             return response.json();
-    //         })
-    //         .then((data: Room) => {
-    //             setRoom(data);
-    //         })
-    //         .catch(error => {
-    //             console.error("Failed to load room:", error);
-    //         });
-    // }, [roomId]);
-
     if (!isAuth) {
         return (
-            <div>
-                <p>You must sign in before booking.</p>
-                <button type="button" onClick={() => navigate("/login")}>
-                    Sign in
-                </button>
+            <div className="flex min-h-screen items-center justify-center bg-[#FAFAFA] px-4 font-['Nunito_Sans']">
+                <div className="text-center">
+                    <h1 className="text-2xl font-extrabold text-[#222]">
+                        Sign in to continue
+                    </h1>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            navigate("/")
+                        }
+                        className="mt-5 rounded-full bg-[#581ADB] px-8 py-3 text-sm font-bold text-white"
+                    >
+                        Sign in
+                    </button>
+                </div>
             </div>
         );
     }
 
-    // if (!room) {
-    //     return <p>Room not found.</p>;
-    // }
-
-
     if (roomError) {
-        return <p>{roomError}</p>;
+        return (
+            <div className="flex min-h-screen items-center justify-center font-['Nunito_Sans']">
+                <p className="text-red-500">
+                    {roomError}
+                </p>
+            </div>
+        );
     }
 
     if (!room) {
-        return <p>Loading...</p>;
+        return (
+            <div className="flex min-h-screen items-center justify-center font-['Nunito_Sans']">
+                <p className="text-sm text-[#777]">
+                    Loading booking...
+                </p>
+            </div>
+        );
     }
 
     const nights =
-        booking.checkIn && booking.checkOut
+        booking.checkIn &&
+        booking.checkOut
             ? Math.max(
                 0,
-                (new Date(booking.checkOut).getTime() -
-                    new Date(booking.checkIn).getTime()) /
-                86400000
+                Math.ceil(
+                    (
+                        new Date(
+                            booking.checkOut
+                        ).getTime() -
+                        new Date(
+                            booking.checkIn
+                        ).getTime()
+                    ) /
+                    86400000
+                )
             )
             : 0;
 
-    const total = Number(room.pricePerNight) * nights;
+    const total =
+        Number(
+            room.pricePerNight
+        ) * nights;
 
-    // const submit = async (event: FormEvent<HTMLFormElement>) => {
-    //     event.preventDefault();
-    //     setError("");
-    //
-    //     if (step === 1) {
-    //         if (
-    //             !booking.firstName ||
-    //             !booking.lastName ||
-    //             !booking.email ||
-    //             !booking.checkIn ||
-    //             !booking.checkOut
-    //         ) {
-    //             setError("Fill in all required fields.");
-    //             return;
-    //         }
-    //
-    //         if (new Date(booking.checkOut) <= new Date(booking.checkIn)) {
-    //             setError("Check-out must be after check-in.");
-    //             return;
-    //         }
-    //
-    //         setStep(2);
-    //         return;
-    //     }
-    //
-    //     if (step === 2) {
-    //         if (!booking.phone) {
-    //             setError("Phone is required.");
-    //             return;
-    //         }
-    //
-    //         setStep(3);
-    //         return;
-    //     }
-    //
-    //     if (!rules) {
-    //         setError("You must accept the booking rules.");
-    //         return;
-    //     }
-    //
-    //     if (cardNumber.replace(/ /g, "").length < 16) {
-    //         setError("Enter a valid card number.");
-    //         return;
-    //     }
-    //
-    //     try {
-    //         const response = await apiFetch("/Booking", {
-    //             method: "POST",
-    //             body: JSON.stringify({
-    //                 roomId: room.id,
-    //                 checkInDate: booking.checkIn,
-    //                 checkOutDate: booking.checkOut,
-    //                 adultsCount: booking.adults,
-    //                 childrenCount: booking.children,
-    //                 travelDetails: booking.travelDetails,
-    //                 isPaid: true,
-    //             }),
-    //         });
-    //
-    //         const data = await response.json().catch(() => null);
-    //
-    //         if (!response.ok) {
-    //             throw new Error(data?.message || await readError(response));
-    //         }
-    //
-    //         navigate("/booking-success");
-    //     } catch (error) {
-    //         setError(error instanceof Error ? error.message : "Booking failed");
-    //     }
-    // };
+    const today =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+    const checkOutMin =
+        booking.checkIn ||
+        today;
+
+    const canAddGuest =
+        booking.adults +
+        booking.children <
+        room.capacity;
+
+    const increaseAdults =
+        () => {
+            if (!canAddGuest) {
+                return;
+            }
+
+            updateBooking({
+                adults:
+                    booking.adults + 1,
+            });
+        };
+
+    const decreaseAdults =
+        () => {
+            if (
+                booking.adults <= 1
+            ) {
+                return;
+            }
+
+            updateBooking({
+                adults:
+                    booking.adults - 1,
+            });
+        };
+
+    const increaseChildren =
+        () => {
+            if (!canAddGuest) {
+                return;
+            }
+
+            updateBooking({
+                children:
+                    booking.children + 1,
+            });
+        };
+
+    const decreaseChildren =
+        () => {
+            if (
+                booking.children <= 0
+            ) {
+                return;
+            }
+
+            updateBooking({
+                children:
+                    booking.children - 1,
+            });
+        };
 
     return (
-        <div className="booking-page">
-            <h1>Booking</h1>
-            {/*<h1>Booking</h1>*/}
-            {/*<p>Step {step} of 3</p>*/}
+        <div className="min-h-screen bg-[#FAFAFA] px-4 py-8 font-['Nunito_Sans'] md:px-8">
+            <div className="mx-auto max-w-[1180px]">
+                <button
+                    type="button"
+                    onClick={() =>
+                        navigate(-1)
+                    }
+                    className="mb-5 text-sm font-bold text-[#581ADB]"
+                >
+                    ← Back
+                </button>
 
-            {/*<div className="booking-room">*/}
-            {/*    <img*/}
-            {/*        className="room-card__image"*/}
-            {/*        src={getImageUrl(room.imageUrl)}*/}
-            {/*        alt={room.title}*/}
-            {/*    />*/}
-            {/*    <h2>{room.title}</h2>*/}
-            {/*    <p>{room.bedType}</p>*/}
-            {/*    <p>{room.pricePerNight} / night</p>*/}
-            {/*</div>*/}
+                <div className="grid gap-5 lg:grid-cols-[310px_1fr]">
+                    <aside className="rounded-[15px] border border-[#E5E5E5] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+                        <h2 className="text-lg font-extrabold text-[#222]">
+                            Your stay
+                        </h2>
 
-            {/*<form onSubmit={submit} className="booking-form">*/}
-            {/*    {step === 1 && (*/}
-            {/*        <>*/}
-            {/*            <h2>Personal data and trip dates</h2>*/}
+                        <div className="mt-4 rounded-[12px] bg-[#F7F4FF] p-4">
+                            <p className="text-[10px] uppercase tracking-wide text-[#999]">
+                                Hotel location
+                            </p>
 
-            {/*            <input*/}
-            {/*                value={booking.firstName}*/}
-            {/*                onChange={event =>*/}
-            {/*                    updateBooking({ firstName: event.target.value })*/}
-            {/*                }*/}
-            {/*                placeholder="First name"*/}
-            {/*                required*/}
-            {/*            />*/}
+                            <p className="mt-1 text-sm font-extrabold text-[#581ADB]">
+                                {hotelCity},{" "}
+                                {hotelCountry}
+                            </p>
 
-            {/*            <input*/}
-            {/*                value={booking.lastName}*/}
-            {/*                onChange={event =>*/}
-            {/*                    updateBooking({ lastName: event.target.value })*/}
-            {/*                }*/}
-            {/*                placeholder="Last name"*/}
-            {/*                required*/}
-            {/*            />*/}
+                            <p className="mt-1 text-xs text-[#777]">
+                                {hotelName}
+                            </p>
+                        </div>
 
-            {/*            <input*/}
-            {/*                type="email"*/}
-            {/*                value={booking.email}*/}
-            {/*                onChange={event =>*/}
-            {/*                    updateBooking({ email: event.target.value })*/}
-            {/*                }*/}
-            {/*                placeholder="Email"*/}
-            {/*                required*/}
-            {/*            />*/}
+                        <div className="mt-5">
+                            <p className="mb-2 text-sm font-bold text-[#222]">
+                                Dates
+                            </p>
 
-            {/*            <input*/}
-            {/*                type="email"*/}
-            {/*                placeholder="Confirm email"*/}
-            {/*                required*/}
-            {/*            />*/}
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="mb-1 block text-[11px] text-[#777]">
+                                        Check-in
+                                    </label>
 
-            {/*            <input*/}
-            {/*                type="password"*/}
-            {/*                placeholder="Booking password"*/}
-            {/*                required*/}
-            {/*            />*/}
+                                    <input
+                                        type="date"
+                                        min={today}
+                                        value={
+                                            booking.checkIn
+                                        }
+                                        onChange={event => {
+                                            const value =
+                                                event
+                                                    .target
+                                                    .value;
 
-            {/*            <label>*/}
-            {/*                Check-in*/}
-            {/*                <input*/}
-            {/*                    type="date"*/}
-            {/*                    value={booking.checkIn}*/}
-            {/*                    onChange={event =>*/}
-            {/*                        updateBooking({ checkIn: event.target.value })*/}
-            {/*                    }*/}
-            {/*                    required*/}
-            {/*                />*/}
-            {/*            </label>*/}
+                                            updateBooking({
+                                                checkIn:
+                                                value,
+                                            });
 
-            {/*            <label>*/}
-            {/*                Check-out*/}
-            {/*                <input*/}
-            {/*                    type="date"*/}
-            {/*                    value={booking.checkOut}*/}
-            {/*                    onChange={event =>*/}
-            {/*                        updateBooking({ checkOut: event.target.value })*/}
-            {/*                    }*/}
-            {/*                    required*/}
-            {/*                />*/}
-            {/*            </label>*/}
+                                            if (
+                                                booking.checkOut &&
+                                                value >=
+                                                booking.checkOut
+                                            ) {
+                                                updateBooking({
+                                                    checkIn:
+                                                    value,
+                                                    checkOut:
+                                                        "",
+                                                });
+                                            }
+                                        }}
+                                        className="h-11 w-full rounded-[10px] border border-[#DDDDDD] bg-white px-3 text-sm outline-none focus:border-[#581ADB]"
+                                    />
+                                </div>
 
-            {/*            <select*/}
-            {/*                value={booking.adults}*/}
-            {/*                onChange={event =>*/}
-            {/*                    updateBooking({ adults: Number(event.target.value) })*/}
-            {/*                }*/}
-            {/*            >*/}
-            {/*                {[1, 2, 3, 4].map(x =>*/}
-            {/*                    <option key={x} value={x}>Adults: {x}</option>*/}
-            {/*                )}*/}
-            {/*            </select>*/}
+                                <div>
+                                    <label className="mb-1 block text-[11px] text-[#777]">
+                                        Check-out
+                                    </label>
 
-            {/*            <select*/}
-            {/*                value={booking.children}*/}
-            {/*                onChange={event =>*/}
-            {/*                    updateBooking({ children: Number(event.target.value) })*/}
-            {/*                }*/}
-            {/*            >*/}
-            {/*                {[0, 1, 2, 3].map(x =>*/}
-            {/*                    <option key={x} value={x}>Children: {x}</option>*/}
-            {/*                )}*/}
-            {/*            </select>*/}
+                                    <input
+                                        type="date"
+                                        min={checkOutMin}
+                                        value={
+                                            booking.checkOut
+                                        }
+                                        onChange={event =>
+                                            updateBooking({
+                                                checkOut:
+                                                event
+                                                    .target
+                                                    .value,
+                                            })
+                                        }
+                                        className="h-11 w-full rounded-[10px] border border-[#DDDDDD] bg-white px-3 text-sm outline-none focus:border-[#581ADB]"
+                                    />
+                                </div>
+                            </div>
+                        </div>
 
-            {/*            <textarea*/}
-            {/*                value={booking.travelDetails}*/}
-            {/*                onChange={event =>*/}
-            {/*                    updateBooking({ travelDetails: event.target.value })*/}
-            {/*                }*/}
-            {/*                placeholder="Optional services"*/}
-            {/*            />*/}
-            {/*        </>*/}
-            {/*    )}*/}
-            <BookingRoom
-                room={room}
-            />
+                        <div className="mt-5">
+                            <p className="mb-3 text-sm font-bold text-[#222]">
+                                Guests
+                            </p>
 
-            {/*    {step === 2 && (*/}
-            {/*        <>*/}
-            {/*            <h2>Trip information</h2>*/}
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between rounded-[10px] border border-[#E5E5E5] p-3">
+                                    <div>
+                                        <p className="text-sm font-bold text-[#222]">
+                                            Adults
+                                        </p>
 
-            {/*            <input*/}
-            {/*                value={booking.phone}*/}
-            {/*                onChange={event =>*/}
-            {/*                    updateBooking({ phone: event.target.value })*/}
-            {/*                }*/}
-            {/*                placeholder="Phone"*/}
-            {/*                required*/}
-            {/*            />*/}
+                                        <p className="text-[11px] text-[#999]">
+                                            18+ years
+                                        </p>
+                                    </div>
 
-            {/*            <input*/}
-            {/*                value={booking.travelDetails}*/}
-            {/*                onChange={event =>*/}
-            {/*                    updateBooking({ travelDetails: event.target.value })*/}
-            {/*                }*/}
-            {/*                placeholder="Country / trip details"*/}
-            {/*            />*/}
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                decreaseAdults
+                                            }
+                                            className="h-8 w-8 rounded-full border border-[#581ADB] text-[#581ADB]"
+                                        >
+                                            −
+                                        </button>
 
-            {/*            <label>*/}
-            {/*                Confirmation method*/}
-            {/*                <select*/}
-            {/*                    value={booking.confirmationMethod}*/}
-            {/*                    onChange={event =>*/}
-            {/*                        updateBooking({*/}
-            {/*                            confirmationMethod: event.target.value,*/}
-            {/*                        })*/}
-            {/*                    }*/}
-            {/*                >*/}
-            {/*                    <option value="email">Email</option>*/}
-            {/*                    <option value="call">Phone call</option>*/}
-            {/*                </select>*/}
-            {/*            </label>*/}
-            {/*        </>*/}
-            {/*    )}*/}
+                                        <span className="w-5 text-center text-sm font-bold">
+                                            {
+                                                booking.adults
+                                            }
+                                        </span>
 
-            {/*    {step === 3 && (*/}
-            {/*        <>*/}
-            {/*            <h2>Payment</h2>*/}
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                increaseAdults
+                                            }
+                                            disabled={
+                                                !canAddGuest
+                                            }
+                                            className="h-8 w-8 rounded-full border border-[#581ADB] text-[#581ADB] disabled:opacity-30"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
 
-            {/*            <select*/}
-            {/*                value={cardType}*/}
-            {/*                onChange={event => setCardType(event.target.value)}*/}
-            {/*            >*/}
-            {/*                <option>Visa</option>*/}
-            {/*                <option>Mastercard</option>*/}
-            {/*            </select>*/}
+                                <div className="flex items-center justify-between rounded-[10px] border border-[#E5E5E5] p-3">
+                                    <div>
+                                        <p className="text-sm font-bold text-[#222]">
+                                            Children
+                                        </p>
 
-            {/*            <input*/}
-            {/*                value={cardNumber}*/}
-            {/*                onChange={event => setCardNumber(event.target.value)}*/}
-            {/*                placeholder="Card number"*/}
-            {/*                inputMode="numeric"*/}
-            {/*                required*/}
-            {/*            />*/}
+                                        <p className="text-[11px] text-[#999]">
+                                            0–17 years
+                                        </p>
+                                    </div>
 
-            {/*            <input*/}
-            {/*                value={expiry}*/}
-            {/*                onChange={event => setExpiry(event.target.value)}*/}
-            {/*                placeholder="MM/YY"*/}
-            {/*                required*/}
-            {/*            />*/}
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                decreaseChildren
+                                            }
+                                            className="h-8 w-8 rounded-full border border-[#581ADB] text-[#581ADB]"
+                                        >
+                                            −
+                                        </button>
 
-            {/*            <label>*/}
-            {/*                <input*/}
-            {/*                    type="checkbox"*/}
-            {/*                    checked={rules}*/}
-            {/*                    onChange={event => setRules(event.target.checked)}*/}
-            {/*                />*/}
-            {/*                I agree with booking rules*/}
-            {/*            </label>*/}
+                                        <span className="w-5 text-center text-sm font-bold">
+                                            {
+                                                booking.children
+                                            }
+                                        </span>
 
-            {/*            <h3>Total: {total}</h3>*/}
-            {/*        </>*/}
-            {/*    )}*/}
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                increaseChildren
+                                            }
+                                            disabled={
+                                                !canAddGuest
+                                            }
+                                            className="h-8 w-8 rounded-full border border-[#581ADB] text-[#581ADB] disabled:opacity-30"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-            {/*    {error && <p className="error">{error}</p>}*/}
+                        <div className="mt-5 rounded-[10px] border border-[#E5E5E5] p-3">
+                            <p className="text-[10px] text-[#999]">
+                                Room capacity
+                            </p>
 
-            {/*    <button className="button" type="submit">*/}
-            {/*        {step === 3 ? "Complete booking" : "Continue"}*/}
-            {/*    </button>*/}
-            {/*</form>*/}
-            <BookingForm
-                room={room}
-                total={total}
-                navigate={navigate}
-            />
+                            <p className="mt-1 text-sm font-extrabold text-[#581ADB]">
+                                {room.capacity} guest(s)
+                            </p>
+
+                            <p className="mt-1 text-xs text-[#777]">
+                                Selected:{" "}
+                                {booking.adults +
+                                    booking.children}{" "}
+                                guest(s)
+                            </p>
+                        </div>
+                    </aside>
+
+                    <main>
+                        <div className="rounded-[15px] border border-[#E5E5E5] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+                            <div className="flex flex-col gap-4 md:flex-row">
+                                <img
+                                    src={getImageUrl(
+                                        room.imageUrl
+                                    )}
+                                    alt={
+                                        room.title
+                                    }
+                                    className="h-52 w-full rounded-[12px] object-cover md:w-[320px]"
+                                />
+
+                                <div className="flex-1">
+                                    <h1 className="text-xl font-extrabold text-[#222]">
+                                        {
+                                            room.title
+                                        }
+                                    </h1>
+
+                                    <p className="mt-1 text-sm text-[#777]">
+                                        {hotelName}
+                                    </p>
+
+                                    <p className="mt-1 text-sm text-[#777]">
+                                        {hotelCity},{" "}
+                                        {hotelCountry}
+                                    </p>
+
+                                    <p className="mt-2 text-sm text-[#777]">
+                                        Bed:{" "}
+                                        {
+                                            room.bedType
+                                        }
+                                    </p>
+
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        <div className="rounded-[10px] border border-[#E5E5E5] px-4 py-2">
+                                            <p className="text-[10px] text-[#999]">
+                                                Check-in
+                                            </p>
+
+                                            <p className="text-sm font-bold text-[#581ADB]">
+                                                {booking.checkIn ||
+                                                    "—"}
+                                            </p>
+                                        </div>
+
+                                        <div className="rounded-[10px] border border-[#E5E5E5] px-4 py-2">
+                                            <p className="text-[10px] text-[#999]">
+                                                Check-out
+                                            </p>
+
+                                            <p className="text-sm font-bold text-[#581ADB]">
+                                                {booking.checkOut ||
+                                                    "—"}
+                                            </p>
+                                        </div>
+
+                                        <div className="rounded-[10px] border border-[#E5E5E5] px-4 py-2">
+                                            <p className="text-[10px] text-[#999]">
+                                                Guests
+                                            </p>
+
+                                            <p className="text-sm font-bold text-[#581ADB]">
+                                                {
+                                                    booking.adults
+                                                }{" "}
+                                                adult(s),{" "}
+                                                {
+                                                    booking.children
+                                                }{" "}
+                                                child(ren)
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col justify-center text-right">
+                                    <p className="text-xs text-[#999]">
+                                        Price
+                                    </p>
+
+                                    <p className="text-2xl font-extrabold text-[#581ADB]">
+                                        $
+                                        {
+                                            room.pricePerNight
+                                        }
+                                    </p>
+
+                                    <p className="text-xs text-[#999]">
+                                        per night
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-5 rounded-[15px] border border-[#E5E5E5] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] sm:p-7">
+                            <BookingForm
+                                room={room}
+                                total={total}
+                                navigate={navigate}
+                                hotelName={
+                                    hotelName
+                                }
+                            />
+                        </div>
+                    </main>
+                </div>
+            </div>
         </div>
     );
 };

@@ -59,8 +59,17 @@ const VerifyCode = ({
 
             login(
                 {
-                    name: resp.name || "User",
-                    email: resp.email || email,
+                    id:
+                        resp.id ||
+                        resp.userId,
+
+                    name:
+                        resp.name ||
+                        "User",
+
+                    email:
+                        resp.email ||
+                        email,
                 },
                 resp.accessToken,
                 resp.refreshToken
@@ -155,7 +164,9 @@ const VerifyCode = ({
                         disabled:opacity-50
                     "
                 >
-                    {loading ? "Loading..." : "Continue"}
+                    {loading
+                        ? "Checking..."
+                        : "Continue"}
                 </button>
             </form>
         </div>

@@ -1,323 +1,13 @@
 // import { useState } from "react";
 // import { useNavigate } from "react-router-dom";
 // import type { Hotel } from "../../context/HotelsContext.types";
-// import { useHotels } from "../../hooks/useHotels.ts";
-// import { getImageUrl } from "../../api";
-// import { useAuth } from "../../context/useAuth";
+// import {useHotels,} from "../../hooks/useHotels.ts";
+// import {getImageUrl,} from "../../api";
+// import {useAuth,} from "../../context/useAuth";
 // import Modal from "../modal/Modal";
 // import Stars from "../modal/Stars";
 // import ReviewList from "../reviews/ReviewList";
-//
-// type Props = {
-//     hotel: Hotel | null;
-//     onClose: () => void;
-// };
-//
-// type BookedUser = {
-//     hotelId: string;
-//     userId: string;
-//     name: string;
-//     email: string;
-// };
-//
-// const HotelDetailsModal = ({ hotel, onClose }: Props) => {
-//     const navigate = useNavigate();
-//     const { isAuth, user } = useAuth();
-//     const { hotels, addReview } = useHotels();
-//
-//     const [rating, setRating] = useState(0);
-//     const [text, setText] = useState("");
-//     const [message, setMessage] = useState("");
-//
-//     if (!hotel) {
-//         return null;
-//     }
-//
-//     const currentHotel =
-//         hotels.find(x => x.id === hotel.id) || hotel;
-//
-//     const savedBookedUsers = JSON.parse(
-//         localStorage.getItem("hotel_booked_users") || "[]"
-//     ) as BookedUser[];
-//
-//     const bookedUsers = savedBookedUsers.filter(
-//         item => item.hotelId === currentHotel.id
-//     );
-//
-//     const currentUserId = user?.id || user?.email || "";
-//
-//     const alreadyBooked = bookedUsers.some(
-//         item => item.userId === currentUserId
-//     );
-//
-//     const sendReview = async () => {
-//         if (!isAuth) {
-//             navigate("/login");
-//             return;
-//         }
-//
-//         if (rating === 0 || !text.trim()) {
-//             setMessage("Choose a rating and write a comment.");
-//             return;
-//         }
-//
-//         try {
-//             await addReview(
-//                 currentHotel.id,
-//                 rating,
-//                 text.trim()
-//             );
-//
-//             setRating(0);
-//             setText("");
-//             setMessage("Review added.");
-//         } catch (error) {
-//             setMessage(
-//                 error instanceof Error
-//                     ? error.message
-//                     : "Could not add review."
-//             );
-//         }
-//     };
-//
-//     const openBooking = (roomId: string) => {
-//         if (!isAuth) {
-//             navigate("/login");
-//             return;
-//         }
-//
-//         if (alreadyBooked) {
-//             setMessage(
-//                 "You have already booked this hotel."
-//             );
-//             return;
-//         }
-//
-//         onClose();
-//
-//         navigate(`/booking/${roomId}`);
-//     };
-//
-//     return (
-//         <Modal open={true} closeModal={onClose}>
-//             <div className="max-h-[85vh] overflow-y-auto p-6">
-//                 <h2>{currentHotel.name}</h2>
-//
-//                 {currentHotel.mainImageUrl ? (
-//                     <img
-//                         className="hotel-details__image"
-//                         src={getImageUrl(
-//                             currentHotel.mainImageUrl
-//                         )}
-//                         alt={currentHotel.name}
-//                     />
-//                 ) : (
-//                     <p>No hotel image.</p>
-//                 )}
-//
-//                 <p>
-//                     {currentHotel.city},{" "}
-//                     {currentHotel.country}
-//                 </p>
-//
-//                 <Stars
-//                     value={Math.round(currentHotel.rating)}
-//                 />
-//
-//                 <p>
-//                     Rating:{" "}
-//                     {currentHotel.rating > 0
-//                         ? currentHotel.rating.toFixed(1)
-//                         : "No rating"}{" "}
-//                     ({currentHotel.reviewsCount})
-//                 </p>
-//
-//                 <h3>Description</h3>
-//
-//                 <p>
-//                     {currentHotel.description ||
-//                         "No description."}
-//                 </p>
-//
-//                 <h3>Amenities</h3>
-//
-//                 <p>
-//                     {currentHotel.amenities.length
-//                         ? currentHotel.amenities.join(", ")
-//                         : "No amenities."}
-//                 </p>
-//
-//                 <p>
-//                     Wi-Fi:{" "}
-//                     {currentHotel.hasWifi === true
-//                         ? "Yes"
-//                         : currentHotel.hasWifi === false
-//                             ? "No"
-//                             : "Not specified"}
-//                 </p>
-//
-//                 {currentHotel.images.length > 1 && (
-//                     <div className="hotel-gallery">
-//                         {currentHotel.images.map(image => (
-//                             <img
-//                                 key={image}
-//                                 src={getImageUrl(image)}
-//                                 alt={currentHotel.name}
-//                             />
-//                         ))}
-//                     </div>
-//                 )}
-//
-//                 {bookedUsers.length > 0 && (
-//                     <>
-//                         <h3>Booked by</h3>
-//
-//                         <div className="space-y-1">
-//                             {bookedUsers.map(item => (
-//                                 <p key={`${item.hotelId}-${item.userId}`}>
-//                                     {item.name}
-//                                 </p>
-//                             ))}
-//                         </div>
-//                     </>
-//                 )}
-//
-//                 {alreadyBooked && (
-//                     <p className="mt-3 text-sm font-bold text-[#581ADB]">
-//                         You have already booked this hotel.
-//                     </p>
-//                 )}
-//
-//                 <h3>Rooms</h3>
-//
-//                 {currentHotel.rooms.length === 0 ? (
-//                     <p>No rooms.</p>
-//                 ) : (
-//                     <div className="rooms-list">
-//                         {currentHotel.rooms.map(room => (
-//                             <div
-//                                 className="room-card"
-//                                 key={room.id}
-//                             >
-//                                 {room.imageUrl ? (
-//                                     <img
-//                                         className="room-card__image"
-//                                         src={getImageUrl(
-//                                             room.imageUrl
-//                                         )}
-//                                         alt={room.title}
-//                                     />
-//                                 ) : (
-//                                     <div className="room-card__image room-card__image--empty">
-//                                         No image
-//                                     </div>
-//                                 )}
-//
-//                                 <div className="room-card__content">
-//                                     <h4>{room.title}</h4>
-//
-//                                     <p>
-//                                         Bed: {room.bedType}
-//                                     </p>
-//
-//                                     <p>
-//                                         Capacity: {room.capacity}
-//                                     </p>
-//
-//                                     <p>
-//                                         Price:{" "}
-//                                         {room.pricePerNight}{" "}
-//                                         / night
-//                                     </p>
-//
-//                                     <p>
-//                                         {room.isAvailable
-//                                             ? "Available"
-//                                             : "Not available"}
-//                                     </p>
-//
-//                                     {room.isAvailable && (
-//                                         <button
-//                                             type="button"
-//                                             className="button"
-//                                             disabled={alreadyBooked}
-//                                             onClick={() =>
-//                                                 openBooking(room.id)
-//                                             }
-//                                         >
-//                                             {alreadyBooked
-//                                                 ? "Already booked"
-//                                                 : "Book"}
-//                                         </button>
-//                                     )}
-//                                 </div>
-//                             </div>
-//                         ))}
-//                     </div>
-//                 )}
-//
-//                 <h3>Reviews</h3>
-//
-//                 <ReviewList />
-//
-//                 <div className="review-form">
-//                     <h3>Leave a review</h3>
-//
-//                     {isAuth ? (
-//                         <>
-//                             <Stars
-//                                 value={rating}
-//                                 onChange={setRating}
-//                             />
-//
-//                             <textarea
-//                                 value={text}
-//                                 onChange={event =>
-//                                     setText(event.target.value)
-//                                 }
-//                                 placeholder="Your comment"
-//                             />
-//
-//                             <button
-//                                 type="button"
-//                                 className="button"
-//                                 onClick={sendReview}
-//                             >
-//                                 Send
-//                             </button>
-//                         </>
-//                     ) : (
-//                         <button
-//                             type="button"
-//                             className="button"
-//                             onClick={() =>
-//                                 navigate("/login")
-//                             }
-//                         >
-//                             Sign in to review
-//                         </button>
-//                     )}
-//
-//                     {message && (
-//                         <p>{message}</p>
-//                     )}
-//                 </div>
-//             </div>
-//         </Modal>
-//     );
-// };
-//
-// export default HotelDetailsModal;
-
-// import { useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import type { Hotel } from "../../context/HotelsContext.types";
-// import { useHotels } from "../../hooks/useHotels.ts";
-// import { getImageUrl } from "../../api";
-// import { useAuth } from "../../context/useAuth";
-// import Modal from "../modal/Modal";
-// import Stars from "../modal/Stars";
-// import ReviewList from "../reviews/ReviewList";
+// import RatingCircle from "../hotel/RatingCircle";
 //
 // type Props = {
 //     hotel: Hotel | null;
@@ -328,40 +18,64 @@
 //                                hotel,
 //                                onClose,
 //                            }: Props) => {
-//     const navigate = useNavigate();
-//     const { isAuth } = useAuth();
-//     const { hotels, addReview } = useHotels();
+//     const navigate =
+//         useNavigate();
 //
-//     const [rating, setRating] = useState(0);
-//     const [text, setText] = useState("");
-//     const [message, setMessage] = useState("");
+//     const { isAuth } =
+//         useAuth();
+//
+//     const {
+//         hotels,
+//         addReview,
+//     } = useHotels();
+//
+//     const [rating, setRating] =
+//         useState(0);
+//
+//     const [text, setText] =
+//         useState("");
+//
+//     const [message, setMessage] =
+//         useState("");
 //
 //     if (!hotel) {
 //         return null;
 //     }
 //
 //     const currentHotel =
-//         hotels.find((item) => item.id === hotel.id) ||
-//         hotel;
+//         hotels.find(
+//             item =>
+//                 item.id ===
+//                 hotel.id
+//         ) || hotel;
 //
-//     const displayedRating =
-//         rating > 0
-//             ? rating
-//             : Math.round(currentHotel.rating);
+//     const hotelStars =
+//         currentHotel.stars > 0
+//             ? Math.round(
+//                 currentHotel.stars
+//             )
+//             : Math.round(
+//                 currentHotel.rating /
+//                 2
+//             );
 //
 //     const sendReview = async () => {
 //         if (!isAuth) {
-//             navigate("/login");
+//             navigate("/");
 //             return;
 //         }
 //
 //         if (rating === 0) {
-//             setMessage("Choose a rating.");
+//             setMessage(
+//                 "Choose a rating."
+//             );
 //             return;
 //         }
 //
 //         if (!text.trim()) {
-//             setMessage("Write a comment.");
+//             setMessage(
+//                 "Write a comment."
+//             );
 //             return;
 //         }
 //
@@ -376,7 +90,10 @@
 //
 //             setRating(0);
 //             setText("");
-//             setMessage("Review added successfully.");
+//
+//             setMessage(
+//                 "Review added successfully."
+//             );
 //         } catch (error) {
 //             setMessage(
 //                 error instanceof Error
@@ -391,246 +108,275 @@
 //             open={true}
 //             closeModal={onClose}
 //         >
-//             <div className="max-h-[85vh] overflow-y-auto px-5 pb-6">
-//                 <h2 className="mb-4 text-2xl font-bold text-[#222]">
-//                     {currentHotel.name}
-//                 </h2>
+//             <div className="max-h-[88vh] overflow-y-auto px-5 pb-7 font-['Nunito_Sans']">
+//                 <div className="flex items-start justify-between gap-4">
+//                     <div>
+//                         <h2 className="text-2xl font-extrabold text-[#581ADB]">
+//                             {
+//                                 currentHotel.name
+//                             }
+//                         </h2>
 //
-//                 {currentHotel.mainImageUrl ? (
-//                     <img
-//                         className="mb-4 h-56 w-full rounded-xl object-cover"
-//                         src={getImageUrl(
-//                             currentHotel.mainImageUrl
-//                         )}
-//                         alt={currentHotel.name}
-//                     />
-//                 ) : (
-//                     <div className="mb-4 flex h-56 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
-//                         No hotel image
+//                         <p className="mt-1 text-sm text-[#777]">
+//                             {
+//                                 currentHotel.city
+//                             }
+//                             ,{" "}
+//                             {
+//                                 currentHotel.country
+//                             }
+//                         </p>
 //                     </div>
-//                 )}
 //
-//                 <p className="mb-2 text-gray-600">
-//                     {currentHotel.city},{" "}
-//                     {currentHotel.country}
-//                 </p>
+//                     <button
+//                         type="button"
+//                         onClick={() =>
+//                             navigate(
+//                                 `/hotel/${currentHotel.id}`
+//                             )
+//                         }
+//                         className="rounded-full border border-[#581ADB] px-4 py-2 text-xs font-bold text-[#581ADB]"
+//                     >
+//                         Hotel page
+//                     </button>
+//                 </div>
 //
-//                 <div className="mb-1 flex items-center gap-3">
-//                     <Stars
-//                         value={displayedRating}
-//                         onChange={
-//                             isAuth
-//                                 ? setRating
-//                                 : undefined
+//                 <div className="mt-4 overflow-hidden rounded-[16px]">
+//                     {currentHotel.mainImageUrl ? (
+//                         <img
+//                             className="h-64 w-full object-cover"
+//                             src={getImageUrl(
+//                                 currentHotel.mainImageUrl
+//                             )}
+//                             alt={
+//                                 currentHotel.name
+//                             }
+//                         />
+//                     ) : (
+//                         <div className="flex h-64 items-center justify-center bg-[#F4F4F4] text-gray-500">
+//                             No hotel image
+//                         </div>
+//                     )}
+//                 </div>
+//
+//                 <div className="mt-4 flex flex-wrap items-center gap-4">
+//                     <div className="flex items-center gap-1">
+//                         {Array.from({
+//                             length: 5,
+//                         }).map(
+//                             (_, index) => (
+//                                 <span
+//                                     key={
+//                                         index
+//                                     }
+//                                     className={`text-lg ${index < hotelStars ? "text-[#581ADB]" : "text-[#D8D8D8]"}`}
+//                                 >
+//                                     ★
+//                                 </span>
+//                             )
+//                         )}
+//                     </div>
+//
+//                     <RatingCircle
+//                         rating={
+//                             currentHotel.rating
 //                         }
 //                     />
 //
-//                     <span className="font-semibold">
-//                         {currentHotel.rating > 0
-//                             ? currentHotel.rating.toFixed(1)
-//                             : "No rating"}
+//                     <span className="text-sm text-[#777]">
+//                         {currentHotel.rating >
+//                         0
+//                             ? `${currentHotel.rating.toFixed(1)}/10` : "No rating"}
+//                     </span>
+//                     <span className="text-sm text-[#999]">
+//                         {
+//                             currentHotel.reviewsCount
+//                         }{" "}review(s)
 //                     </span>
 //                 </div>
-//
-//                 <p className="mb-5 text-sm text-gray-500">
-//                     {currentHotel.reviewsCount} review(s)
-//                 </p>
-//
-//                 <h3 className="mb-2 text-lg font-bold">
-//                     Description
-//                 </h3>
-//
-//                 <p className="mb-5 text-gray-600">
-//                     {currentHotel.description ||
-//                         "No description."}
-//                 </p>
-//
-//                 <h3 className="mb-2 text-lg font-bold">
-//                     Amenities
-//                 </h3>
-//
-//                 <p className="mb-5 text-gray-600">
-//                     {currentHotel.amenities.length
-//                         ? currentHotel.amenities.join(", ")
-//                         : "No amenities."}
-//                 </p>
-//
-//                 <p className="mb-5 text-gray-600">
-//                     Wi-Fi:{" "}
-//                     {currentHotel.hasWifi === true
-//                         ? "Yes"
-//                         : currentHotel.hasWifi === false
+//                 <section className="mt-6">
+//                     <h3 className="text-lg font-extrabold text-[#222]">
+//                         Description
+//                     </h3>
+//                     <p className="mt-2 leading-6 text-[#666]">{
+//                         currentHotel.description || "No description."}</p>
+//                 </section>
+//                 <section className="mt-6">
+//                     <h3 className="text-lg font-extrabold text-[#222]">
+//                         Amenities
+//                     </h3>
+//                     <p className="mt-2 text-[#666]">
+//                         {currentHotel.amenities.length ? currentHotel.amenities.join(", ") : "No amenities."}</p>
+//                     <p className="mt-2 text-[#666]">Wi-Fi:{" "}
+//                         {currentHotel.hasWifi === true ? "Yes" : currentHotel.hasWifi === false
 //                             ? "No"
-//                             : "Not specified"}
-//                 </p>
-//
+//                             : "Not specified"}</p>
+//                 </section>
 //                 {currentHotel.images.length > 1 && (
-//                     <div className="mb-5 grid grid-cols-2 gap-2">
+//                     <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3">
 //                         {currentHotel.images.map(
-//                             (image) => (
+//                             image => (
 //                                 <img
-//                                     key={image}
+//                                     key={
+//                                         image
+//                                     }
 //                                     src={getImageUrl(
 //                                         image
 //                                     )}
 //                                     alt={
 //                                         currentHotel.name
 //                                     }
-//                                     className="h-32 w-full rounded-lg object-cover"
+//                                     className="h-28 w-full rounded-xl object-cover"
 //                                 />
 //                             )
 //                         )}
 //                     </div>
 //                 )}
+//                 <section className="mt-6">
+//                     <h3 className="mb-3 text-lg font-extrabold text-[#222]">
+//                         Rooms</h3>
+//                     {currentHotel.rooms.length === 0 ? (<p className="text-gray-500">No rooms.</p>) : (
+//                         <div className="space-y-3">
+//                             {currentHotel.rooms.map(
+//                                 room => (
+//                                     <div
+//                                         key={
+//                                             room.id
+//                                         }
+//                                         className="rounded-[14px] border border-[#E5E5E5] p-3"
+//                                     >
+//                                         <div className="flex gap-3">
+//                                             {room.imageUrl ? (
+//                                                 <img
+//                                                     className="h-24 w-24 rounded-xl object-cover"
+//                                                     src={getImageUrl(
+//                                                         room.imageUrl
+//                                                     )}
+//                                                     alt={
+//                                                         room.title
+//                                                     }
+//                                                 />
+//                                             ) : (
+//                                                 <div className="flex h-24 w-24 items-center justify-center rounded-xl bg-[#F3F3F3] text-xs text-gray-500">
+//                                                     No image
+//                                                 </div>
+//                                             )}
 //
-//                 <h3 className="mb-3 text-lg font-bold">
-//                     Rooms
-//                 </h3>
+//                                             <div className="min-w-0 flex-1">
+//                                                 <h4 className="font-extrabold text-[#222]">
+//                                                     {
+//                                                         room.title
+//                                                     }
+//                                                 </h4>
 //
-//                 {currentHotel.rooms.length === 0 ? (
-//                     <p className="mb-5 text-gray-500">
-//                         No rooms.
-//                     </p>
-//                 ) : (
-//                     <div className="mb-6 space-y-3">
-//                         {currentHotel.rooms.map(
-//                             (room) => (
-//                                 <div
-//                                     className="rounded-xl border border-[#E5E5E5] p-3"
-//                                     key={room.id}
-//                                 >
-//                                     <div className="flex gap-3">
-//                                         {room.imageUrl ? (
-//                                             <img
-//                                                 className="h-24 w-24 rounded-lg object-cover"
-//                                                 src={getImageUrl(
-//                                                     room.imageUrl
-//                                                 )}
-//                                                 alt={
-//                                                     room.title
-//                                                 }
-//                                             />
-//                                         ) : (
-//                                             <div className="flex h-24 w-24 items-center justify-center rounded-lg bg-gray-100 text-xs text-gray-500">
-//                                                 No image
+//                                                 <p className="mt-1 text-sm text-[#777]">
+//                                                     Bed:{" "}
+//                                                     {
+//                                                         room.bedType
+//                                                     }
+//                                                 </p>
+//
+//                                                 <p className="text-sm text-[#777]">
+//                                                     Capacity:{" "}
+//                                                     {
+//                                                         room.capacity
+//                                                     }
+//                                                 </p>
+//
+//                                                 <p className="mt-1 font-extrabold text-[#581ADB]">
+//                                                     {
+//                                                         room.pricePerNight
+//                                                     }{" "}
+//                                                     / night
+//                                                 </p>
 //                                             </div>
-//                                         )}
-//
-//                                         <div className="flex-1">
-//                                             <h4 className="font-bold">
-//                                                 {room.title}
-//                                             </h4>
-//
-//                                             <p className="text-sm text-gray-600">
-//                                                 Bed:{" "}
-//                                                 {room.bedType}
-//                                             </p>
-//
-//                                             <p className="text-sm text-gray-600">
-//                                                 Capacity:{" "}
-//                                                 {
-//                                                     room.capacity
-//                                                 }
-//                                             </p>
-//
-//                                             <p className="text-sm font-semibold">
-//                                                 {
-//                                                     room.pricePerNight
-//                                                 }{" "}
-//                                                 / night
-//                                             </p>
-//
-//                                             <p className="text-sm text-gray-500">
-//                                                 {room.isAvailable
-//                                                     ? "Available"
-//                                                     : "Not available"}
-//                                             </p>
 //                                         </div>
+//
+//                                         {room.isAvailable && (
+//                                             <button
+//                                                 type="button"
+//                                                 className="mt-3 rounded-full bg-[#581ADB] px-6 py-2 text-sm font-bold text-white"
+//                                                 onClick={() => {
+//                                                     onClose();
+//
+//                                                     navigate(
+//                                                         `/booking/${room.id}`
+//                                                     );
+//                                                 }}
+//                                             >
+//                                                 Book
+//                                             </button>
+//                                         )}
 //                                     </div>
-//
-//                                     {room.isAvailable && (
-//                                         <button
-//                                             type="button"
-//                                             className="button mt-3"
-//                                             onClick={() => {
-//                                                 onClose();
-//                                                 navigate(
-//                                                     `/booking/${room.id}`
-//                                                 );
-//                                             }}
-//                                         >
-//                                             Book
-//                                         </button>
-//                                     )}
-//                                 </div>
-//                             )
-//                         )}
-//                     </div>
-//                 )}
-//
-//                 <h3 className="mb-3 text-lg font-bold">
-//                     Reviews
-//                 </h3>
-//
-//                 <div className="mb-6 max-h-64 overflow-y-auto rounded-xl border border-[#E5E5E5] p-4">
+//                                 )
+//                             )}
+//                         </div>
+//                     )}
+//                 </section>
+//                 <section className="mt-6">
+//                     <h3 className="mb-3 text-lg font-extrabold text-[#222]">
+//                         Reviews
+//                     </h3>
 //                     <ReviewList
 //                         reviews={
 //                             currentHotel.reviews
 //                         }
 //                     />
-//                 </div>
+//                 </section>
+//                 <section className="mt-6 rounded-[16px] border border-[#E5E5E5] p-4">
 //
-//                 <div className="rounded-xl border border-[#E5E5E5] p-4">
-//                     <h3 className="mb-3 text-lg font-bold">
+//                     <h3 className="text-lg font-extrabold text-[#222]">
 //                         Leave a review
 //                     </h3>
 //
 //                     {isAuth ? (
 //                         <>
-//                             <p className="mb-2 text-sm text-gray-500">
+//                             <p className="mt-3 text-sm text-[#777]">
 //                                 Your rating
 //                             </p>
 //
 //                             <Stars
 //                                 value={rating}
-//                                 onChange={setRating}
+//                                 onChange={
+//                                     setRating
+//                                 }
 //                             />
 //
 //                             <textarea
 //                                 value={text}
-//                                 onChange={(event) =>
+//                                 onChange={event =>
 //                                     setText(
-//                                         event.target.value
+//                                         event
+//                                             .target
+//                                             .value
 //                                     )
 //                                 }
 //                                 placeholder="Your comment"
-//                                 className="mt-4 min-h-24 w-full resize-none rounded-lg border border-[#DDDDDD] p-3 outline-none focus:border-[#581ADB]"
+//                                 className="mt-4 min-h-28 w-full resize-none rounded-[14px] border border-[#DDDDDD] p-4 outline-none focus:border-[#581ADB] focus:ring-2 focus:ring-violet-100"
 //                             />
 //
 //                             <button
 //                                 type="button"
-//                                 className="button mt-3"
-//                                 onClick={sendReview}
+//                                 className="mt-3 rounded-full bg-[#581ADB] px-7 py-3 text-sm font-bold text-white"
+//                                 onClick={
+//                                     sendReview
+//                                 }
 //                             >
 //                                 Send review
 //                             </button>
 //                         </>
 //                     ) : (
-//                         <button
-//                             type="button"
-//                             className="button"
-//                             onClick={() =>
-//                                 navigate("/login")
-//                             }
-//                         >
-//                             Sign in to review
-//                         </button>
+//                         <p className="mt-3 text-sm text-[#777]">
+//                             Sign in to leave a review.
+//                         </p>
 //                     )}
 //
 //                     {message && (
 //                         <p
 //                             className={`mt-3 text-sm ${
-//                                 message.includes("successfully")
+//                                 message.includes(
+//                                     "successfully"
+//                                 )
 //                                     ? "text-green-600"
 //                                     : "text-red-500"
 //                             }`}
@@ -638,7 +384,7 @@
 //                             {message}
 //                         </p>
 //                     )}
-//                 </div>
+//                 </section>
 //             </div>
 //         </Modal>
 //     );

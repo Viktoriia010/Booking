@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch, readError } from "../api";
 import { useAuth } from "../context/useAuth";
+// import {useHotels} from "@/hooks/useHotels.ts";
+// import HotelCard from "@/components/hotel/HotelCard.tsx";
 
 type AccountData = {
     name: string;
@@ -25,7 +27,7 @@ const AccountPage = () => {
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-
+    // const {hotels} = useHotels();
     const { isAuth, user, logout } = useAuth();
     const [data, setData] = useState<AccountData>({
         name: user?.name || "",
@@ -141,6 +143,13 @@ const AccountPage = () => {
             </div>
         );
     }
+
+    // const selected = JSON.parse(
+    //     localStorage.getItem("likedHotels") || "[]"
+    // );
+    //
+    // const likedHotels = hotels
+    //     .filter((hotel) => selected.includes(hotel.id));
 
     return (
         <div className="mx-auto max-w-4xl px-4 py-10 font-['Nunito_Sans']">
@@ -404,6 +413,31 @@ const AccountPage = () => {
             {/*    </div>*/}
             {/*))}*/}
             {/*<button type="button" onClick={logout}>Sign out</button>*/}
+
+            {/*<section className="rounded-2xl bg-white p-6 shadow-sm">*/}
+            {/*    <div className="mb-5 flex items-center justify-between">*/}
+            {/*        <div>*/}
+            {/*            <h2 className="text-xl font-semibold text-gray-900">*/}
+            {/*                ❤️ Favorites*/}
+            {/*            </h2>*/}
+
+            {/*            <p className="mt-1 text-sm text-gray-500">*/}
+            {/*                Hotel you liked*/}
+            {/*            </p>*/}
+            {/*        </div>*/}
+
+            {/*        <button className="text-sm font-medium text-gray-700 hover:underline">*/}
+            {/*            View all*/}
+            {/*        </button>*/}
+            {/*    </div>*/}
+
+            {/*    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">*/}
+
+            {/*        {likedHotels.map((hotel) => (*/}
+            {/*            <HotelCard key={hotel.id} hotel={hotel}/>*/}
+            {/*        ))}*/}
+            {/*    </div>*/}
+            {/*</section>*/}
         </div>
     );
 };

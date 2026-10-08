@@ -12,7 +12,7 @@ const HotelCard = ({ hotel }: { hotel: Hotel}) => {
     const navigate = useNavigate();
     const [liked, setLiked] = useState(() => {
         const selected = JSON.parse(
-            localStorage.getItem("selected") || "[]"
+            localStorage.getItem("likedHotels") || "[]"
         );
 
         return selected.includes(hotel.id);
@@ -27,7 +27,7 @@ const HotelCard = ({ hotel }: { hotel: Hotel}) => {
     function likeProduct(e: React.MouseEvent<HTMLButtonElement>) {
         e.stopPropagation();
         const selected = JSON.parse(
-            localStorage.getItem("selected") || "[]"
+            localStorage.getItem("likedHotels") || "[]"
         );
 
         const newLiked = !liked;
@@ -37,7 +37,7 @@ const HotelCard = ({ hotel }: { hotel: Hotel}) => {
         if (newLiked) {
             selected.push(hotel.id);
             localStorage.setItem(
-                "selected",
+                "likedHotels",
                 JSON.stringify(selected)
             );
         } else {
@@ -46,7 +46,7 @@ const HotelCard = ({ hotel }: { hotel: Hotel}) => {
             );
 
             localStorage.setItem(
-                "selected",
+                "likedHotels",
                 JSON.stringify(updated)
             );
         }

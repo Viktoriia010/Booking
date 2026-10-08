@@ -67,12 +67,10 @@ export default function Home() {
     const navigate = useNavigate();
 
     const search = async (data: SearchData) => {
-        await Promise.all([
-            loadHotels(data),
-            loadFilters(data),
-        ]);
-
         navigate("/search");
+
+        void loadHotels(data);
+        void loadFilters(data);
     };
 
     console.log("HOTELS:", hotels);

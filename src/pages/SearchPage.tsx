@@ -2,8 +2,8 @@ import {useHotels} from "@/hooks/useHotels.ts";
 import type { SearchData} from "@/context/HotelsContext.types.ts";
 import banner from "@/assets/search-banner.jpg";
 import SearchForm from "@/components/hotels/SearchForm.tsx";
-import HotelList from "@/components/hotel/HotelList.tsx";
 import HotelFiltersSidebar from "@/components/hotel/HotelFiltersSidebar.tsx";
+import HotelSearchList from "@/components/hotels/HotelSearchList.tsx";
 
 
 const SearchPage = ()=>{
@@ -235,7 +235,7 @@ const SearchPage = ()=>{
                         {/*</div>*/}
                         {!loading && !error && hotels.length > 0 && (
                             <div className="overflow-x-auto scrollbar-hide">
-                                <HotelList hotels={hotels} />
+                                <HotelSearchList hotels={hotels} />
                             </div>
                         )}
                     </div>

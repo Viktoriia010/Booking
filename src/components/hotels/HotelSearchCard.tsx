@@ -1,11 +1,11 @@
 import {useEffect, useState} from "react";
 import type {Hotel} from "@/context/HotelsContext.types.ts";
 import {getImageUrl} from "@/api.ts";
-import Stars from "@/components/modal/Stars.tsx";
+import {useNavigate} from "react-router-dom";
+import starRating from "@/assets/star-rounded.svg";
 
 type HotelCardProps = {
     hotel: Hotel;
-    onChoose: (hotel: Hotel) => void;
 };
 
 type BookedUser = {
@@ -23,7 +23,9 @@ const getBookedUsers = (hotelId: string): BookedUser[] => {
     return saved.filter((item) => item.hotelId === hotelId);
 };
 
-const HotelSearchCard = ({ hotel, onChoose }: HotelCardProps) => {
+
+const HotelSearchCard = ({ hotel }: HotelCardProps) => {
+    const navigate = useNavigate();
     const [imageError, setImageError] = useState(false);
     const [bookedUsers, setBookedUsers] = useState<BookedUser[]>(() =>
         getBookedUsers(hotel.id)
@@ -64,8 +66,16 @@ const HotelSearchCard = ({ hotel, onChoose }: HotelCardProps) => {
                     {hotel.name}
                 </h3>
 
-                <div className="mt-1 flex items-center gap-2">
-                    <Stars value={Math.round(hotel.rating)} />
+                <div className="mt-1 flex items-center">
+                    {Array.from({ length: hotel.stars }).map((_, index) => (
+                        <img
+                            key={index}
+                            src={starRating}
+                            alt="star"
+                            className="h-3.5 w-3.5"
+                        />
+                    ))}
+
                 </div>
 
                 {hotel.amenities.length > 0 && (
@@ -81,10 +91,10 @@ const HotelSearchCard = ({ hotel, onChoose }: HotelCardProps) => {
                     </div>
                 )}
 
-                <div className="mt-3 flex flex-wrap gap-4 text-[12px] text-[#717171]">
-                    <span>airport 3.5км</span>
-                    <span>railway station 4.2км</span>
-                </div>
+                {/*<div className="mt-3 flex flex-wrap gap-4 text-[12px] text-[#717171]">*/}
+                {/*    <span>airport 3.5км</span>*/}
+                {/*    <span>railway station 4.2км</span>*/}
+                {/*</div>*/}
 
                 <button
                     type="button"
@@ -109,12 +119,12 @@ const HotelSearchCard = ({ hotel, onChoose }: HotelCardProps) => {
 
             <div className="flex shrink-0 flex-col items-end justify-between p-5 sm:w-[160px]">
                 <div className="flex items-center gap-2">
-                    <div className="flex h-[42px] w-[42px] items-center justify-center rounded-full border-2 border-[#581ADB] text-[15px] font-bold text-[#581ADB]">
+                    <div className="flex h-[42px] w-[42px] items-center justify-center rounded-full border-1 border-[#581ADB] text-[15px] text-[#581ADB]">
                         {hotel.rating > 0 ? hotel.rating.toFixed(1) : "—"}
                     </div>
-                    <div className="text-[10px] leading-tight text-[#717171]">
+                    <div className="text-[12px] flex justify-center items-center flex-col leading-tight text-[#717171]">
                         <p>reviews</p>
-                        <p className="font-semibold text-black">
+                        <p>
                             {hotel.reviewsCount}
                         </p>
                     </div>
@@ -128,7 +138,7 @@ const HotelSearchCard = ({ hotel, onChoose }: HotelCardProps) => {
 
                     <button
                         type="button"
-                        onClick={() => onChoose(hotel)}
+                        onClick={() => navigate(`/hotel/${hotel.id}`)}
                         className="mt-2 cursor-pointer rounded-full bg-[#581ADB] px-6 py-2 text-[12px] font-bold uppercase tracking-wide text-white transition hover:bg-violet-800 active:scale-[0.98]"
                     >
                         Choose

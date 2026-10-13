@@ -1,5 +1,5 @@
-import type { Hotel } from "@/context/HotelsContext.types";
-import HotelSearchCard from "@/components/hotels/HotelSearchCard.tsx";
+import type { Hotel } from "@/context/HotelsContext.types.ts";
+import HotelSearchCard from "@/components/hotel/HotelSearchCard.tsx";
 
 type HotelListProps = {
     hotels: Hotel[];

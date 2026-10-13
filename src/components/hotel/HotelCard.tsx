@@ -81,23 +81,6 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite}) => {
                     />
                 </button>
 
-                {/*{hotel.images.length > 1 && (*/}
-                {/*    <div className="absolute bottom-3.5 left-1/2 flex -translate-x-1/2 gap-2">*/}
-                {/*        {hotel.images.map((_, index) => (*/}
-                {/*            <button*/}
-                {/*                key={index}*/}
-                {/*                type="button"*/}
-                {/*                onClick={(e) => changeImage(e, index)}*/}
-                {/*                className={`h-[9px] w-[9px] rounded-full ${*/}
-                {/*                    index === currentImage*/}
-                {/*                        ? "bg-white"*/}
-                {/*                        : "bg-white/55"*/}
-                {/*                }`}*/}
-                {/*            />*/}
-                {/*        ))}*/}
-                {/*    </div>*/}
-                {/*)}*/}
-
                 {/* Previous image */}
                 {hotel.images.length > 1 && (
                     <>

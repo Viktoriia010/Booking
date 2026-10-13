@@ -1,9 +1,9 @@
 import {useHotels} from "@/hooks/useHotels.ts";
 import type { SearchData} from "@/context/HotelsContext.types.ts";
 import banner from "@/assets/search-banner.jpg";
-import SearchForm from "@/components/hotels/SearchForm.tsx";
+import SearchForm from "@/components/hotel/SearchForm.tsx";
 import HotelFiltersSidebar from "@/components/hotel/HotelFiltersSidebar.tsx";
-import HotelSearchList from "@/components/hotels/HotelSearchList.tsx";
+import HotelSearchList from "@/components/hotel/HotelSearchList.tsx";
 
 
 const SearchPage = ()=>{

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import type { SearchData } from "../../context/HotelsContext.types";
+import type { SearchData } from "../../context/HotelsContext.types.ts";
 
 type SearchFormProps = { onSearch: (data: SearchData) => void };
 

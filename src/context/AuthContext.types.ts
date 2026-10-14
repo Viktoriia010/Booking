@@ -9,6 +9,7 @@ export type User = {
     city?: string;
     travelPurpose?: string;
     travelingWithPet?: boolean;
+    avatarUrl?: string;
 };
 
 export type AuthContextType = {

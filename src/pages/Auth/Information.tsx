@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { apiFetch, readError } from "@/api";
-import { useAuth } from "@/context/useAuth";
 import {useEffect, useState} from "react";
+import {userStore} from "@/store/userStore.ts";
 
 type Location = {
     country: string;
@@ -26,8 +26,17 @@ type InformationProps = {
 };
 
 const Information = ({onSuccess}:InformationProps) => {
-    const { user } = useAuth();
+
     const [locations, setLocations] = useState<Location[]>([]);
+    const user = userStore((state) => state.user);
+    const loading = userStore((state) => state.loading);
+    const getUser = userStore((state) => state.getUser);
+
+    useEffect(() => {
+        if (!user && !loading) {
+            void getUser();
+        }
+    }, [user, loading, getUser]);
 
     useEffect(() => {
         const loadLocations = async () => {
@@ -95,6 +104,9 @@ const Information = ({onSuccess}:InformationProps) => {
             if (!response.ok) {
                 throw new Error(await readError(response));
             }
+
+            await getUser();
+
 
             onSuccess();
         } catch (error) {

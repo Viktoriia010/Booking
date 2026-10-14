@@ -15,16 +15,63 @@ export const getImageUrl = (url: string) => {
 
     return `${SERVER_URL}/hotels/${url.replace(/^\/+/, "")}`;
 
-    // if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    // return `${SERVER_URL}${url.startsWith("/") ? url : `/${url}`}`;
+};
+
+export const getAvatarUrl = (url: string) => {
+    if (!url) return "";
+
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `${SERVER_URL}${url.startsWith("/") ? url : `/${url}`}`;
 };
 
 export const getToken = () => localStorage.getItem("accessToken");
 
+// Оновлюємо токен через Refresh Token
+async function refreshAccessToken(): Promise<string | null> {
+    try {
+        const response = await fetch(`${API_URL}/auth/refresh`, {
+            method: "POST",
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            throw new Error("Refresh failed");
+        }
+
+        const data = await response.json();
+        const newAccessToken = data.accessToken;
+
+        if (typeof newAccessToken !== "string" || !newAccessToken) {
+            throw new Error("Access token missing");
+        }
+
+        localStorage.setItem("accessToken", newAccessToken);
+
+        window.dispatchEvent(
+            new CustomEvent("accessTokenUpdated", {
+                detail: newAccessToken,
+            })
+        );
+
+        return newAccessToken;
+    } catch (error) {
+        console.error("Token refresh failed:", error);
+
+        localStorage.removeItem("accessToken");
+
+        window.dispatchEvent(new Event("authRefreshFailed"));
+
+        return null;
+    }
+}
+
+// Основна обгортка для всіх API-запитів
 export async function apiFetch(
     path: string,
     options: RequestInit = {}
 ): Promise<Response> {
+    const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
+
     const headers = new Headers(options.headers);
     const token = getToken();
 
@@ -32,15 +79,58 @@ export async function apiFetch(
         headers.set("Authorization", `Bearer ${token}`);
     }
 
-    if (options.body && !headers.has("Content-Type") && !(options.body instanceof FormData)) {
+    if (
+        options.body &&
+        !(options.body instanceof FormData) &&
+        !headers.has("Content-Type")
+    ) {
         headers.set("Content-Type", "application/json");
     }
 
-    return fetch(`${API_URL}${path.startsWith("/") ? path : `/${path}`}`, {
+    const config: RequestInit = {
         ...options,
         headers,
         credentials: "include",
+    };
+
+    // 1. Перший запит
+    let response = await fetch(url, config);
+
+    // 2. Якщо помилка не 401, повертаємо відповідь
+    if (response.status !== 401) {
+        return response;
+    }
+
+    // Не повторюємо refresh для самого endpoint оновлення
+    if (path.replace(/^\/+/, "") === "auth/refresh") {
+        return response;
+    }
+
+    // 3. Оновлюємо Access Token
+    const newToken = await refreshAccessToken();
+
+    if (!newToken) {
+        return response;
+    }
+
+    // 4. Повторюємо початковий запит із новим токеном
+    const retryHeaders = new Headers(options.headers);
+    retryHeaders.set("Authorization", `Bearer ${newToken}`);
+
+    if (
+        options.body &&
+        !(options.body instanceof FormData) &&
+        !retryHeaders.has("Content-Type")
+    ) {
+        retryHeaders.set("Content-Type", "application/json");
+    }
+
+    response = await fetch(url, {
+        ...config,
+        headers: retryHeaders,
     });
+
+    return response;
 }
 
 export async function readError(response: Response) {

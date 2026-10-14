@@ -1,10 +1,11 @@
 import {useEffect, useRef, useState, type ChangeEvent, type FormEvent,} from "react";
 import {useNavigate,} from "react-router-dom";
-import {apiFetch, getImageUrl, readError,} from "../api";
+import {apiFetch, getAvatarUrl, getImageUrl, readError,} from "../api";
 import {useAuth,} from "../context/useAuth";
 import AccountTabs from "../components/account/AccountTabs";
 import HotelCard from "@/components/hotel/HotelCard.tsx";
 import type { HotelFavorite} from "@/context/HotelsContext.types.ts";
+import {userStore} from "@/store/userStore.ts";
 
 type AccountData = {
     name: string;
@@ -126,11 +127,11 @@ const AccountPage = () => {
     const navigate =
         useNavigate();
 
-    const {
-        isAuth,
-        user,
-        logout,
-    } = useAuth();
+    const { isAuth, logout } = useAuth();
+
+    const user = userStore((state) => state.user);
+    const getUser = userStore((state) => state.getUser);
+    const [isEditingName, setIsEditingName] = useState(false);
 
     const [data, setData] =
         useState<AccountData>({
@@ -284,6 +285,7 @@ const AccountPage = () => {
                                 ),
                             });
                         }
+
                     }
                 } catch (error) {
                     setMessage(
@@ -748,6 +750,17 @@ const AccountPage = () => {
                     );
                 }
 
+                await getUser();
+                console.log(
+                    "Zustand user:",
+                    userStore.getState().user
+                );
+
+                console.log(
+                    "AuthContext user:",
+                    user
+                );
+
                 setMessage(
                     "Account saved."
                 );
@@ -768,7 +781,7 @@ const AccountPage = () => {
 
     const avatar =
         previewUrl ||
-        getImageUrl(
+        getAvatarUrl(
             data.avatarUrl
         );
 
@@ -829,14 +842,42 @@ const AccountPage = () => {
                             </div>
 
                             <div className="p-4">
-                                <p className="text-sm font-extrabold text-[#222]">
-                                    {
-                                        data.name
-                                    }{" "}
-                                    <span className="text-[#999]">
-                                        ✎
-                                    </span>
-                                </p>
+                                <div className="flex items-center gap-2">
+                                    {isEditingName ? (
+                                        <input
+                                            autoFocus
+                                            name="name"
+                                            value={data.name}
+                                            onChange={handleTextChange}
+                                            onBlur={() => setIsEditingName(false)}
+                                            onKeyDown={(event) => {
+                                                if (event.key === "Enter") {
+                                                    setIsEditingName(false);
+                                                }
+
+                                                if (event.key === "Escape") {
+                                                    setIsEditingName(false);
+                                                }
+                                            }}
+                                            className="w-full border-b border-[#581ADB] bg-transparent text-sm font-extrabold text-[#222] outline-none"
+                                        />
+                                    ) : (
+                                        <>
+                                            <p className="text-sm font-extrabold text-[#222]">
+                                                {data.name || "User"}
+                                            </p>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsEditingName(true)}
+                                                className="text-[#999] transition hover:text-[#581ADB]"
+                                                aria-label="Edit name"
+                                            >
+                                                ✎
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
 
                                 <button
                                     type="button"

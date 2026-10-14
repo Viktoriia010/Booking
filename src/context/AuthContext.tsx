@@ -8,13 +8,14 @@
 // export const AuthContext = createContext<AuthContextType | null>(null);
 import {
     useState,
-    type ReactNode,
+    type ReactNode, useEffect,
 } from "react";
 
 import {
     AuthContext,
     type User,
 } from "./AuthContext.types";
+import {apiFetch} from "@/api.ts";
 
 export function AuthProvider({
                                  children,
@@ -51,6 +52,46 @@ export function AuthProvider({
                 "refreshToken"
             )
         );
+
+    useEffect(() => {
+        const handleTokenUpdated = (event: Event) => {
+            const customEvent = event as CustomEvent<string>;
+
+            setToken(customEvent.detail);
+        };
+
+        const handleRefreshFailed = () => {
+            setToken(null);
+            setUser(null);
+            setRefreshToken(null);
+
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("user");
+        };
+
+        window.addEventListener(
+            "accessTokenUpdated",
+            handleTokenUpdated
+        );
+
+        window.addEventListener(
+            "authRefreshFailed",
+            handleRefreshFailed
+        );
+
+        return () => {
+            window.removeEventListener(
+                "accessTokenUpdated",
+                handleTokenUpdated
+            );
+
+            window.removeEventListener(
+                "authRefreshFailed",
+                handleRefreshFailed
+            );
+        };
+    }, []);
 
     const login = (
         newUser: User,
@@ -91,22 +132,22 @@ export function AuthProvider({
         }
     };
 
-    const logout = () => {
-        setToken(null);
-        setUser(null);
-        setRefreshToken(null);
+    const logout = async () => {
+        try {
+            await apiFetch("auth/logout", {
+                method: "POST",
+            });
+        } catch (error) {
+            console.error("Logout error:", error);
+        } finally {
+            setToken(null);
+            setUser(null);
+            setRefreshToken(null);
 
-        localStorage.removeItem(
-            "accessToken"
-        );
-
-        localStorage.removeItem(
-            "refreshToken"
-        );
-
-        localStorage.removeItem(
-            "user"
-        );
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("user");
+        }
     };
 
     return (

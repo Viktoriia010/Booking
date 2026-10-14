@@ -11,8 +11,6 @@ import TravelInformationPage from "@/pages/Information.tsx";
 import NewslettersPage from "@/pages/NewslettersPage.tsx";
 import SecurityPage from "@/pages/SecurityPage.tsx";
 import GoogleCallback from "@/pages/Auth/GoogleCallback.tsx";
-import Information from "@/pages/Auth/Information.tsx";
-import AllDone from "@/pages/Auth/AllDone.tsx";
 import BookingPage from "@/pages/Booking/BookingPage.tsx";
 import BookingSuccess from "@/pages/Booking/BookingSuccess.tsx";
 import SearchPage from "@/pages/SearchPage.tsx";
@@ -34,14 +32,6 @@ export const routes = createBrowserRouter([
             {
                 Component: ProtectedRoute,
                 children: [
-                    {
-                        path: "information",
-                        Component: Information,
-                    },
-                    {
-                        path: "all-done",
-                        Component: AllDone,
-                    },
                     {
                         path: "account",
                         Component: AccountPage,

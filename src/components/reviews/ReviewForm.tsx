@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 
 import { useHotels } from "@/hooks/useHotels";
+import {authModalStore} from "@/store/authModalStore.ts";
 
 type ReviewFormValues = {
     facilities: number;
@@ -107,8 +107,10 @@ const ReviewForm = ({
                         isAuth,
                         onSubmitted,
                     }: ReviewFormProps) => {
-    const navigate = useNavigate();
     const { addReview } = useHotels();
+    const openLoginModal = authModalStore(
+        (state) => state.openLoginModal
+    );
 
     const {
         register,
@@ -196,7 +198,7 @@ const ReviewForm = ({
 
                     <button
                         type="button"
-                        onClick={() => navigate("/login")}
+                        onClick={openLoginModal}
                         className="
                             mt-5
                             rounded-full

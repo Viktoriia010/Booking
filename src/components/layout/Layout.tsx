@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 
 import Header from "./Header";
 import Footer from "./Footer";
+import AuthModalManager from "@/components/modal/AuthModalManager.tsx";
 
 
 const Layout = () => {
@@ -19,7 +20,7 @@ const Layout = () => {
             </main>
 
             <Footer />
-
+            <AuthModalManager />
         </div>
 
     );

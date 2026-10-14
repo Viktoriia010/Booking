@@ -1,18 +1,21 @@
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import { useAuth } from "@/context/useAuth.ts";
 import { NavLink } from "react-router-dom";
-import Modal from "@/components/modal/Modal.tsx";
-import Register from "@/pages/Auth/Register.tsx";
-import Login from "@/pages/Auth/Login.tsx";
-import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
-import Information from "@/pages/Auth/Information.tsx";
-import AllDone from "@/pages/Auth/AllDone.tsx";
+
 import {userStore} from "@/store/userStore.ts";
 import {getAvatarUrl} from "@/api.ts";
+import {authModalStore} from "@/store/authModalStore.ts";
 
 const Header = () => {
     const { isAuth } = useAuth();
 
+    const openLoginModal = authModalStore(
+        (state) => state.openLoginModal
+    );
+
+    const openRegisterModal = authModalStore(
+        (state) => state.openRegisterModal
+    );
     const user = userStore((state) => state.user);
     const getUser = userStore((state) => state.getUser);
 
@@ -24,18 +27,6 @@ const Header = () => {
         }
     }, [isAuth, getUser]);
 
-    const [modal, setModal] = useState<
-        "login" | "register" | "verify" | "info" | "all-done" | null
-    >(null);
-
-    const [verificationData, setVerificationData] = useState({
-        email: "",
-        purpose: "Login",
-    });
-
-    const closeModal = () => {
-        setModal(null);
-    };
 
     console.log("USER:", user);
     console.log("AVATAR:", user?.avatarUrl);
@@ -81,14 +72,14 @@ const Header = () => {
                         <>
                             <button
                                 className="cursor-pointer rounded-[30px] border border-[#DDDDDD] px-3 py-1.5 text-sm sm:px-4 sm:text-[16px]"
-                                onClick={() => setModal("register")}
+                                onClick={openRegisterModal}
                             >
                                 Register
                             </button>
 
                             <button
                                 className="flex cursor-pointer items-center gap-1.5 rounded-[30px] border border-[#DDDDDD] py-1.5 pl-3 pr-1.5 text-sm sm:gap-2 sm:pl-4 sm:text-[16px]"
-                                onClick={() => setModal("login")}
+                                onClick={openLoginModal}
                             >
                                 <span>Sign In</span>
 
@@ -101,63 +92,6 @@ const Header = () => {
                         </>
                     )}
 
-
-                    <Modal
-                        open={modal !== null}
-                        closeModal={closeModal}
-                    >
-                        {modal === "register" && (
-                            <Register
-                                onRegister={(email) => {
-                                    setVerificationData({
-                                        email: email,
-                                        purpose: "Registration",
-                                    });
-
-                                    setModal("verify");
-                                }}
-                                onLogin={() => {
-                                    setModal("login");
-                                }}
-                            />
-                        )}
-
-                        {modal === "login" && (
-                            <Login
-                                onRegister={() => {
-                                    setModal("register");
-                                }}
-                                onVerify={(email) => {
-                                    setVerificationData({
-                                        email: email,
-                                        purpose: "Login",
-                                    });
-
-                                    setModal("verify");
-                                }}
-                            />
-                        )}
-
-                        {modal === "verify" && (
-                            <VerifyCode
-                                email={verificationData.email}
-                                purpose={verificationData.purpose}
-                                onSuccess={() => setModal("info")}
-                            />
-                        )}
-
-                        {modal === "info" && (
-                            <Information
-                                onSuccess={() => setModal("all-done")}
-                            />
-                        )}
-
-                        {modal === "all-done" && (
-                            <AllDone
-                                onClose={closeModal}
-                            />
-                        )}
-                    </Modal>
                 </div>
             </div>
         </header>

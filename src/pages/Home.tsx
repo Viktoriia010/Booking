@@ -3,29 +3,23 @@ import HotelList from "@/components/hotel/HotelList.tsx";
 import benefits from "@/models/benefits.ts";
 import woman from "@/assets/photo-woman.avif";
 import { useEffect, useState } from "react";
-import Modal from "@/components/modal/Modal.tsx";
-import Login from "@/pages/Auth/Login.tsx";
-import Register from "@/pages/Auth/Register.tsx";
-import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
+
 import SearchForm from "@/components/hotel/SearchForm.tsx";
 import type { SearchData } from "@/context/HotelsContext.types.ts";
-import Information from "@/pages/Auth/Information.tsx";
-import AllDone from "@/pages/Auth/AllDone.tsx";
+
 import {useHotels} from "@/hooks/useHotels.ts";
 import {apiFetch} from "@/api.ts";
 import Review from "@/components/reviews/Review.tsx";
 import type { Review as ReviewType } from "@/context/HotelsContext.types";
 import {useNavigate} from "react-router-dom";
+import {authModalStore} from "@/store/authModalStore.ts";
 
 
 export default function Home() {
-    const [modal, setModal] = useState<"login" | "register" | "verify" | "info" | "all-done" |null>(null);
-    const [verificationData, setVerificationData] = useState({
-        email: "",
-        purpose: "",
-    });
+    const openRegisterModal = authModalStore(
+        (state) => state.openRegisterModal
+    );
 
-    console.log("VERIFICATION DATA:", verificationData);
 
     const {
         hotels,
@@ -66,7 +60,6 @@ export default function Home() {
     );
 
 
-    const closeModal = () => setModal(null);
 
     return (
         <>
@@ -205,7 +198,7 @@ export default function Home() {
                     duration-200
                     hover:scale-105
                     hover:shadow-[0_8px_28px_rgba(93,22,232,0.5)]"
-                    onClick={() => setModal("register")}
+                    onClick={openRegisterModal}
                 >
                     Register an account
                 </button>
@@ -213,56 +206,6 @@ export default function Home() {
                 <img src="/flag.svg" alt="" />
             </section>
 
-            <Modal
-                open={modal !== null}
-                closeModal={closeModal}
-            >
-                {modal === "register" && (
-                    <Register
-                        onRegister={(email) => {
-                            setVerificationData({
-                                email,
-                                purpose: "Register",
-                            });
-
-                            setModal("verify");
-                        }}
-                        onLogin={() => setModal("login")}
-                    />
-                )}
-
-                {modal === "login" && (
-                    <Login
-                        onRegister={() => setModal("register")}
-                        onVerify={(email) => {
-                            setVerificationData({
-                                email,
-                                purpose: "Login",
-                            });
-
-                            setModal("verify");
-                        }}
-                    />
-                )}
-
-                {modal === "verify" && (
-                    <VerifyCode
-                        email={verificationData.email}
-                        purpose="Register"
-                        onSuccess={() => setModal("info")}
-                    />
-                )}
-                {modal === "info" && (
-                    <Information
-                        onSuccess={() => setModal("all-done")}
-                    />
-                )}
-                {modal === "all-done" && (
-                    <AllDone
-                        onClose={closeModal}
-                    />
-                )}
-            </Modal>
         </>
     );
 }

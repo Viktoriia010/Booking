@@ -62,12 +62,20 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite}) => {
 
                 <img
                     src={
-                        hotel.images.length > 0
-                            ? getImageUrl(hotel.images[currentImage])
-                            : getImageUrl(hotel.mainImageUrl)
+                        getImageUrl(
+                            hotel.images?.[currentImage] || hotel.mainImageUrl
+                        )
                     }
                     alt={hotel.name}
                     className="block h-full w-full object-cover"
+                    onError={(e) => {
+                        console.error("Не вдалося завантажити фото готелю:", {
+                            hotel: hotel.name,
+                            images: hotel.images,
+                            mainImageUrl: hotel.mainImageUrl,
+                            attemptedUrl: e.currentTarget.src,
+                        });
+                    }}
                 />
 
                 <button

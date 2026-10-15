@@ -6,15 +6,14 @@ export const API_URL =
 
 export const SERVER_URL = server.replace(/\/$/, "");
 
-export const getImageUrl = (url: string) => {
-    if (!url) return "";
+export const getImageUrl = (url?: string | null): string | undefined => {
+    if (!url) return undefined;
 
     if (url.startsWith("http://") || url.startsWith("https://")) {
         return url;
     }
 
     return `${SERVER_URL}/hotels/${url.replace(/^\/+/, "")}`;
-
 };
 
 export const getAvatarUrl = (url: string) => {

@@ -6,7 +6,8 @@ import starRating from "@/assets/star-rounded.svg";
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "@/api.ts";
 import { useHotels } from "@/hooks/useHotels";
-import RatingCircle from "./RatingCircle.tsx"
+import RatingCircle from "./RatingCircle.tsx";
+
 const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
     const [currentImage, setCurrentImage] = useState(0);
     const [failedImages, setFailedImages] = useState<string[]>([]);
@@ -31,13 +32,18 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
         .map((url) => getImageUrl(url))
         .filter((url): url is string => Boolean(url));
 
-    const availableImages = images.filter(image => !failedImages.includes(image));
-    const imageIndex = availableImages.length > 0
-        ? currentImage % availableImages.length
-        : 0;
+    const availableImages = images.filter(
+        (image) => !failedImages.includes(image)
+    );
+
+    const imageIndex =
+        availableImages.length > 0
+            ? currentImage % availableImages.length
+            : 0;
 
     async function likeProduct(e: React.MouseEvent<HTMLButtonElement>) {
         e.stopPropagation();
+
         try {
             await toggleFavorite(hotel.id);
         } catch (error) {
@@ -56,7 +62,12 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
                         key={`${hotel.id}-${availableImages[imageIndex]}`}
                         src={availableImages[imageIndex]}
                         alt={hotel.name}
-                        onError={() => setFailedImages(current => [...current, availableImages[imageIndex]])}
+                        onError={() =>
+                            setFailedImages((current) => [
+                                ...current,
+                                availableImages[imageIndex],
+                            ])
+                        }
                         className="block h-full w-full object-cover"
                     />
                 ) : (
@@ -70,10 +81,7 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
                     className="absolute left-2 top-2 cursor-pointer rounded-md p-1"
                     onClick={likeProduct}
                 >
-                    <img
-                        src={liked ? starLiked : star}
-                        alt="heart"
-                    />
+                    <img src={liked ? starLiked : star} alt="heart" />
                 </button>
 
                 {availableImages.length > 1 && (
@@ -82,7 +90,6 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
                             type="button"
                             onClick={(e) => {
                                 e.stopPropagation();
-
                                 setCurrentImage((prev) =>
                                     prev === 0
                                         ? availableImages.length - 1
@@ -98,7 +105,6 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
                             type="button"
                             onClick={(e) => {
                                 e.stopPropagation();
-
                                 setCurrentImage((prev) =>
                                     prev === availableImages.length - 1
                                         ? 0
@@ -120,10 +126,10 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
                                         setCurrentImage(index);
                                     }}
                                     className={`h-[9px] w-[9px] cursor-pointer rounded-full ${
-                                        index === imageIndex
-                                            ? "bg-white"
-                                            : "bg-white/55"
-                                    }`}
+    index === imageIndex
+        ? "bg-white"
+        : "bg-white/55"
+}`}
                                 />
                             ))}
                         </div>
@@ -150,9 +156,7 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
                 <RatingCircle rating={hotel.rating} />
             </div>
 
-            <div className="text-[16px] text-gray-500">
-                {hotel.address}
-            </div>
+            <div className="text-[16px] text-gray-500">{hotel.address}</div>
 
             <div className="text-[16px] font-extrabold">
                 ${minPrice} night
@@ -162,10 +166,3 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
 };
 
 export default HotelCard;
-
-
-
-
-
-
-

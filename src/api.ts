@@ -6,8 +6,8 @@ export const API_URL =
 
 export const SERVER_URL = server.replace(/\/$/, "");
 
-export const getImageUrl = (url: string) => {
-    if (!url) return "";
+export const getImageUrl = (url?: string | null): string | undefined => {
+    if (!url) return undefined;
 
     if (url.startsWith("http://") || url.startsWith("https://")) {
         return url;
@@ -15,27 +15,25 @@ export const getImageUrl = (url: string) => {
 
     const imagePath = url.trim().replace(/\\/g, "/").replace(/^\/+/, "");
 
-    // The API returns paths such as /hotels/<file> and /rooms/<file>.
-    // Keep those paths rooted at the server instead of adding /hotels twice.
     if (/^(hotels|rooms|avatars)\//i.test(imagePath)) {
         return `${SERVER_URL}/${imagePath}`;
     }
 
-    // Older records may contain only the image filename.
     return `${SERVER_URL}/hotels/${imagePath}`;
-
 };
 
 export const getAvatarUrl = (url: string) => {
     if (!url) return "";
 
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+        return url;
+    }
+
     return `${SERVER_URL}${url.startsWith("/") ? url : `/${url}`}`;
 };
 
 export const getToken = () => localStorage.getItem("accessToken");
 
-// Оновлюємо токен через Refresh Token
 async function refreshAccessToken(): Promise<string | null> {
     try {
         const response = await fetch(`${API_URL}/auth/refresh`, {
@@ -67,14 +65,12 @@ async function refreshAccessToken(): Promise<string | null> {
         console.error("Token refresh failed:", error);
 
         localStorage.removeItem("accessToken");
-
         window.dispatchEvent(new Event("authRefreshFailed"));
 
         return null;
     }
 }
 
-// Основна обгортка для всіх API-запитів
 export async function apiFetch(
     path: string,
     options: RequestInit = {}
@@ -102,27 +98,22 @@ export async function apiFetch(
         credentials: "include",
     };
 
-    // 1. Перший запит
     let response = await fetch(url, config);
 
-    // 2. Якщо помилка не 401, повертаємо відповідь
     if (response.status !== 401) {
         return response;
     }
 
-    // Не повторюємо refresh для самого endpoint оновлення
     if (path.replace(/^\/+/, "") === "auth/refresh") {
         return response;
     }
 
-    // 3. Оновлюємо Access Token
     const newToken = await refreshAccessToken();
 
     if (!newToken) {
         return response;
     }
 
-    // 4. Повторюємо початковий запит із новим токеном
     const retryHeaders = new Headers(options.headers);
     retryHeaders.set("Authorization", `Bearer ${newToken}`);
 

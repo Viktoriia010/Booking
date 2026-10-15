@@ -7,6 +7,7 @@ import { canManageReviews, getUserRole } from "@/utils/authRole";
 import HotelCard from "@/components/hotel/HotelCard.tsx";
 import type { HotelFavorite} from "@/context/HotelsContext.types.ts";
 import { useHotels } from "@/hooks/useHotels";
+import {locationsStore} from "@/store/locationsStore.ts";
 
 type AccountData = {
     name: string;
@@ -65,57 +66,6 @@ type AccountReview = {
     createdAt: string;
 };
 
-const countries = [
-    "Ukraine",
-    "United Kingdom",
-    "Poland",
-    "Germany",
-    "France",
-    "United States",
-];
-
-const cities: Record<
-    string,
-    string[]
-> = {
-    Ukraine: [
-        "Dnipro",
-        "Kyiv",
-        "Lviv",
-        "Odesa",
-        "Kharkiv",
-    ],
-
-    "United Kingdom": [
-        "London",
-        "Manchester",
-        "Liverpool",
-    ],
-
-    Poland: [
-        "Warsaw",
-        "Krakow",
-        "Gdansk",
-    ],
-
-    Germany: [
-        "Berlin",
-        "Munich",
-        "Hamburg",
-    ],
-
-    France: [
-        "Paris",
-        "Lyon",
-        "Nice",
-    ],
-
-    "United States": [
-        "New York",
-        "Los Angeles",
-        "Chicago",
-    ],
-};
 
 const currencies = [
     "UAH",
@@ -128,6 +78,17 @@ const AccountPage = () => {
     const navigate =
         useNavigate();
     const showManagement = canManageReviews() || getUserRole() === "" || getUserRole() === "0";
+
+    const locations = locationsStore((state) => state.locations);
+    const loading = locationsStore((state) => state.loading);
+    const error = locationsStore((state) => state.error);
+    const getLocations = locationsStore((state) => state.getLocations);
+
+    useEffect(() => {
+        void getLocations();
+    }, [getLocations]);
+
+
 
     const {
         isAuth,
@@ -193,6 +154,11 @@ const AccountPage = () => {
 
     const [favoriteHotels, setFavoriteHotels] = useState<HotelFavorite[]>([]);
     const visibleFavorites = favoriteHotels.filter(hotel => favoriteHotelIds.includes(hotel.id));
+
+    const cities =
+        locations.find(
+            (location) => location.country === data.country
+        )?.cities ?? [];
 
 
     const fileInputRef =
@@ -492,6 +458,8 @@ const AccountPage = () => {
             );
         };
 
+
+
     const handleDateChange =
         (
             part:
@@ -688,10 +656,17 @@ const AccountPage = () => {
             data.avatarUrl
         );
 
-    const availableCities =
-        cities[
-            data.country
-            ] || [];
+    const handleCountryChange = (
+        event: ChangeEvent<HTMLSelectElement>
+    ) => {
+        const country = event.target.value;
+
+        setData((current) => ({
+            ...current,
+            country,
+            city: "",
+        }));
+    };
 
     return (
         <div className="min-h-screen bg-white px-4 py-7 font-['Nunito_Sans'] sm:px-8">
@@ -722,7 +697,7 @@ const AccountPage = () => {
                 </div>
 
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-3"><AccountTabs />{showManagement && <button type="button" onClick={() => navigate("/management")} className="rounded-full border border-[#581ADB] px-4 py-2 text-xs font-bold text-[#581ADB] hover:bg-[#f5f0ff]">{canManageReviews() ? "Management" : "Admin setup"}</button>}</div>
-\r`n                <h1 className="text-[24px] font-extrabold text-[#581ADB]">
+            <h1 className="text-[24px] font-extrabold text-[#581ADB]">
                     Your Account
                 </h1>
 
@@ -805,32 +780,26 @@ const AccountPage = () => {
 
                         <select
                             name="country"
-                            value={
-                                data.country
-                            }
-                            onChange={
-                                handleTextChange
-                            }
+                            value={data.country}
+                            onChange={handleCountryChange}
+                            disabled={loading}
                             className="h-10 rounded-full border border-[#E5E5E5] bg-white px-4 text-xs italic text-[#777] outline-none focus:border-[#581ADB]"
                         >
-                            <option value="">
-                                Country
+                            <option value="" disabled>
+                                {loading ? "Loading countries..." : "Country"}
                             </option>
 
-                            {countries.map(
-                                country => (
-                                    <option
-                                        key={
-                                            country
-                                        }
-                                    >
-                                        {
-                                            country
-                                        }
-                                    </option>
-                                )
-                            )}
+                            {locations.map((location) => (
+                                <option key={location.country} value={location.country}>
+                                    {location.country}
+                                </option>
+                            ))}
                         </select>
+                        {error && (
+                            <p className="text-xs text-red-500">
+                                {error}
+                            </p>
+                        )}
 
                         <div>
                             <input
@@ -853,31 +822,30 @@ const AccountPage = () => {
 
                         <select
                             name="city"
-                            value={
-                                data.city
-                            }
-                            onChange={
-                                handleTextChange
-                            }
-                            className="h-10 rounded-full border border-[#E5E5E5] bg-white px-4 text-xs italic text-[#777] outline-none focus:border-[#581ADB]"
+                            value={data.city}
+                            onChange={handleTextChange}
+                            disabled={!data.country || loading}
+                            className="h-10 rounded-full border border-[#E5E5E5] bg-white px-4 text-xs italic text-[#777] outline-none focus:border-[#581ADB] disabled:cursor-not-allowed disabled:bg-[#F5F5F5]"
                         >
-                            <option value="">
-                                City
+                            <option value="" disabled>
+                                {loading
+                                    ? "Loading cities..."
+                                    : !data.country
+                                        ? "Select country first"
+                                        : "City"}
                             </option>
 
-                            {availableCities.map(
-                                city => (
-                                    <option
-                                        key={
-                                            city
-                                        }
-                                    >
-                                        {city}
-                                    </option>
-                                )
-                            )}
+                            {cities.map((city) => (
+                                <option key={city} value={city}>
+                                    {city}
+                                </option>
+                            ))}
                         </select>
-
+                        {error && (
+                            <p className="text-xs text-red-500">
+                                {error}
+                            </p>
+                        )}
                         <div>
                             <div className="grid grid-cols-3 gap-2">
                                 <input
@@ -966,6 +934,7 @@ const AccountPage = () => {
                             )}
                         </select>
                     </div>
+
 
                     <div className="mt-4 flex justify-end">
                         <button

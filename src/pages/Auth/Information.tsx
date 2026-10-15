@@ -1,18 +1,9 @@
 import { useForm } from "react-hook-form";
 import { apiFetch, readError } from "@/api";
 import { useAuth } from "@/context/useAuth";
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
+import {locationsStore} from "@/store/locationsStore.ts";
 
-type Location = {
-    country: string;
-    cities: string[];
-};
-
-type LocationsResponse = {
-    error: boolean;
-    msg: string;
-    data: Location[];
-};
 
 type InformationFormData = {
     country: string;
@@ -27,27 +18,15 @@ type InformationProps = {
 
 const Information = ({onSuccess}:InformationProps) => {
     const { user } = useAuth();
-    const [locations, setLocations] = useState<Location[]>([]);
+
+    const locations = locationsStore((state) => state.locations);
+    const loading = locationsStore((state) => state.loading);
+    const error = locationsStore((state) => state.error);
+    const getLocations = locationsStore((state) => state.getLocations);
 
     useEffect(() => {
-        const loadLocations = async () => {
-            try {
-                const response = await fetch("https://countriesnow.space/api/v0.1/countries");
-
-                if (!response.ok) {
-                    throw new Error("Failed to load locations");
-                }
-
-                const result: LocationsResponse = await response.json();
-
-                setLocations(result.data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        loadLocations();
-    }, []);
+        getLocations();
+    }, [getLocations]);
 
 
     const {
@@ -134,8 +113,9 @@ const Information = ({onSuccess}:InformationProps) => {
                         })}
                         className="h-[53px] w-full cursor-pointer appearance-none rounded-full border border-[#DDDDDD] bg-white px-6 text-[16px] text-[#717171] outline-none transition focus:border-[#581ADB]"
                     >
+
                         <option value="" disabled>
-                            Country
+                            {loading ? "Loading countries..." : "Country"}
                         </option>
 
                         {locations.map((location) => (
@@ -159,8 +139,9 @@ const Information = ({onSuccess}:InformationProps) => {
                         disabled={!selectedCountry}
                         className="h-[53px] w-full cursor-pointer appearance-none rounded-full border border-[#DDDDDD] bg-white px-6 text-[16px] text-[#717171] outline-none transition focus:border-[#581ADB] disabled:cursor-not-allowed disabled:bg-[#F5F5F5]"
                     >
+
                         <option value="" disabled>
-                            City
+                            {loading ? "Loading countries..." : "City"}
                         </option>
 
                         {cities.map((city) => (
@@ -174,7 +155,11 @@ const Information = ({onSuccess}:InformationProps) => {
                            ⌄
                         </span>
                 </div>
-
+                {error && (
+                    <p className="text-sm text-red-500">
+                        {error}
+                    </p>
+                )}
                 {/* Travel purpose */}
                 <div className="relative mt-4">
                     <select

@@ -1,11 +1,12 @@
 import {useEffect, useRef, useState, type ChangeEvent, type FormEvent,} from "react";
 import {useNavigate,} from "react-router-dom";
-import {apiFetch, getAvatarUrl, getImageUrl, readError,} from "../api";
+import {apiFetch, getImageUrl, readError,} from "../api";
 import {useAuth,} from "../context/useAuth";
 import AccountTabs from "../components/account/AccountTabs";
+import { canManageReviews, getUserRole } from "@/utils/authRole";
 import HotelCard from "@/components/hotel/HotelCard.tsx";
 import type { HotelFavorite} from "@/context/HotelsContext.types.ts";
-import {userStore} from "@/store/userStore.ts";
+import { useHotels } from "@/hooks/useHotels";
 
 type AccountData = {
     name: string;
@@ -126,12 +127,14 @@ const currencies = [
 const AccountPage = () => {
     const navigate =
         useNavigate();
+    const showManagement = canManageReviews() || getUserRole() === "" || getUserRole() === "0";
 
-    const { isAuth, logout } = useAuth();
-
-    const user = userStore((state) => state.user);
-    const getUser = userStore((state) => state.getUser);
-    const [isEditingName, setIsEditingName] = useState(false);
+    const {
+        isAuth,
+        user,
+        logout,
+    } = useAuth();
+    const { favoriteHotelIds } = useHotels();
 
     const [data, setData] =
         useState<AccountData>({
@@ -189,6 +192,7 @@ const AccountPage = () => {
         );
 
     const [favoriteHotels, setFavoriteHotels] = useState<HotelFavorite[]>([]);
+    const visibleFavorites = favoriteHotels.filter(hotel => favoriteHotelIds.includes(hotel.id));
 
 
     const fileInputRef =
@@ -285,7 +289,6 @@ const AccountPage = () => {
                                 ),
                             });
                         }
-
                     }
                 } catch (error) {
                     setMessage(
@@ -425,127 +428,17 @@ const AccountPage = () => {
                 }
             };
 
-        const loadReviews =
-            async () => {
-                try {
-                    const response =
-                        await apiFetch(
-                            "/Hotel"
-                        );
-
-                    if (!response.ok) {
-                        return;
-                    }
-
-                    const result =
-                        await response.json();
-
-                    const hotels =
-                        Array.isArray(
-                            result.hotels
-                        )
-                            ? result.hotels
-                            : [];
-                    const ownReviews: AccountReview[] =
-                        [];
-
-                    hotels.forEach(
-                        (hotel: {
-                            id: string;
-                            name: string;
-                            reviews?: {
-                                id: string;
-                                userId: string;
-                                rating: number;
-                                text: string;
-                                createdAt: string;
-                            }[];
-                        }) => {
-                            if (
-                                !Array.isArray(
-                                    hotel.reviews
-                                )
-                            ) {
-
-                                return;
-                            }
-
-                            hotel.reviews.forEach(
-                                review => {
-                                    const sameUser =
-                                        user?.id &&
-                                        review.userId ===
-                                        user.id;
-
-                                    if (
-                                        sameUser
-                                    ) {
-                                        ownReviews.push(
-                                            {
-                                                id:
-                                                review.id,
-
-                                                hotelName:
-                                                hotel.name,
-
-                                                rating:
-                                                review.rating,
-
-                                                text:
-                                                review.text,
-
-                                                createdAt:
-                                                review.createdAt,
-                                            }
-                                        );
-                                    }
-                                }
-                            );
-                        }
-                    );
-
-                    setReviews(
-                        ownReviews
-                    );
-                } catch {
-                    setReviews([]);
-                }
-            };
-
-        const loadFavorites = async () => {
+        const loadReviews = async () => {
             try {
-                const selected = JSON.parse(
-                    localStorage.getItem("likedHotels") || "[]"
-                ) as string[];
-
-                if (selected.length === 0) {
-                    setFavoriteHotels([]);
-                    return;
-                }
-                const params = new URLSearchParams();
-
-                selected.forEach(id => {
-                    params.append("ids", id);
-                });
-
-                const response = await apiFetch(
-                    `/Hotel/favorites?${params.toString()}`
-                );
-                if (!response.ok) {
-                    throw new Error(await readError(response));
-                }
-
-                const result = await response.json();
-                console.error(result);
-
-                setFavoriteHotels(result);
+                const response = await apiFetch("/Review/mine");
+                if (!response.ok) throw new Error(await readError(response));
+                const result = await response.json() as AccountReview[];
+                setReviews(Array.isArray(result) ? result : []);
             } catch (error) {
-                console.error(error);
-                setFavoriteHotels([]);
+                setReviews([]);
+                setMessage(error instanceof Error ? error.message : "Could not load your reviews.");
             }
         };
-
-        void loadFavorites();
 
         void loadAccount();
         void loadBookings();
@@ -558,6 +451,27 @@ const AccountPage = () => {
     ]);
 
 
+    useEffect(() => {
+        if (!isAuth) return;
+
+        let cancelled = false;
+        const loadFavorites = async () => {
+            try {
+                const response = await apiFetch("/Favorite");
+                if (!response.ok) throw new Error(await readError(response));
+                const result = await response.json() as HotelFavorite[];
+                if (!cancelled) setFavoriteHotels(Array.isArray(result) ? result : []);
+            } catch (error) {
+                if (!cancelled) {
+                    setFavoriteHotels([]);
+                    setMessage(error instanceof Error ? error.message : "Could not load your favorite hotels.");
+                }
+            }
+        };
+
+        void loadFavorites();
+        return () => { cancelled = true; };
+    }, [isAuth, favoriteHotelIds]);
     const handleTextChange =
         (
             event: ChangeEvent<
@@ -750,17 +664,6 @@ const AccountPage = () => {
                     );
                 }
 
-                await getUser();
-                console.log(
-                    "Zustand user:",
-                    userStore.getState().user
-                );
-
-                console.log(
-                    "AuthContext user:",
-                    user
-                );
-
                 setMessage(
                     "Account saved."
                 );
@@ -781,7 +684,7 @@ const AccountPage = () => {
 
     const avatar =
         previewUrl ||
-        getAvatarUrl(
+        getImageUrl(
             data.avatarUrl
         );
 
@@ -818,9 +721,8 @@ const AccountPage = () => {
                     </button>
                 </div>
 
-                <AccountTabs />
-
-                <h1 className="text-[24px] font-extrabold text-[#581ADB]">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-3"><AccountTabs />{showManagement && <button type="button" onClick={() => navigate("/management")} className="rounded-full border border-[#581ADB] px-4 py-2 text-xs font-bold text-[#581ADB] hover:bg-[#f5f0ff]">{canManageReviews() ? "Management" : "Admin setup"}</button>}</div>
+\r`n                <h1 className="text-[24px] font-extrabold text-[#581ADB]">
                     Your Account
                 </h1>
 
@@ -842,42 +744,14 @@ const AccountPage = () => {
                             </div>
 
                             <div className="p-4">
-                                <div className="flex items-center gap-2">
-                                    {isEditingName ? (
-                                        <input
-                                            autoFocus
-                                            name="name"
-                                            value={data.name}
-                                            onChange={handleTextChange}
-                                            onBlur={() => setIsEditingName(false)}
-                                            onKeyDown={(event) => {
-                                                if (event.key === "Enter") {
-                                                    setIsEditingName(false);
-                                                }
-
-                                                if (event.key === "Escape") {
-                                                    setIsEditingName(false);
-                                                }
-                                            }}
-                                            className="w-full border-b border-[#581ADB] bg-transparent text-sm font-extrabold text-[#222] outline-none"
-                                        />
-                                    ) : (
-                                        <>
-                                            <p className="text-sm font-extrabold text-[#222]">
-                                                {data.name || "User"}
-                                            </p>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsEditingName(true)}
-                                                className="text-[#999] transition hover:text-[#581ADB]"
-                                                aria-label="Edit name"
-                                            >
-                                                ✎
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
+                                <p className="text-sm font-extrabold text-[#222]">
+                                    {
+                                        data.name
+                                    }{" "}
+                                    <span className="text-[#999]">
+                                        ✎
+                                    </span>
+                                </p>
 
                                 <button
                                     type="button"
@@ -904,12 +778,6 @@ const AccountPage = () => {
                         </div>
                     </div>
 
-                    <div className="rounded-[14px] border border-[#E5E5E5] p-4 text-[11px] leading-5 text-[#999]">
-                        Your name will be the only visible information to other users.
-                        <br />
-                        <br />
-                        All other details will remain private and help us simplify the booking process.
-                    </div>
                 </div>
 
                 <form
@@ -1492,7 +1360,7 @@ const AccountPage = () => {
                         YOUR FAVORITES
                     </h2>
 
-                    {favoriteHotels.length === 0 ? (
+                    {visibleFavorites.length === 0 ? (
                         <div className="mt-3 rounded-[14px] border border-[#E5E5E5] p-8 text-center">
                             <div className="text-3xl">❤️</div>
 
@@ -1509,7 +1377,7 @@ const AccountPage = () => {
                         <div className="grid gap-x-7 gap-y-9 px-3
                              grid-flow-col w-auto
                             ">
-                            {favoriteHotels.map((hotel) => (
+                            {visibleFavorites.map((hotel) => (
                                 <HotelCard
                                     key={hotel.id}
                                     hotel={hotel}
@@ -1971,3 +1839,9 @@ export default AccountPage;
 // };
 //
 // export default AccountPage;
+
+
+
+
+
+

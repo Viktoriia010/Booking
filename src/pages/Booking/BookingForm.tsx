@@ -83,13 +83,6 @@ const BookingForm = ({
                     return;
                 }
 
-                if (!bookingPassword) {
-                    setError(
-                        "Booking password is required."
-                    );
-                    return;
-                }
-
                 const checkIn =
                     new Date(
                         booking.checkIn
@@ -219,8 +212,7 @@ const BookingForm = ({
                                 travelDetails:
                                 booking.travelDetails,
 
-                                isPaid:
-                                    true,
+                                isPaid: false,
                             }),
                         }
                     );
@@ -429,7 +421,7 @@ const BookingForm = ({
 
                     <div>
                         <label className="mb-1 block text-xs font-bold text-[#555]">
-                            Booking password
+                            Booking password (optional)
                         </label>
 
                         <input
@@ -748,3 +740,6 @@ const BookingForm = ({
 };
 
 export default BookingForm;
+
+
+

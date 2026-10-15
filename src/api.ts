@@ -13,7 +13,16 @@ export const getImageUrl = (url: string) => {
         return url;
     }
 
-    return `${SERVER_URL}/hotels/${url.replace(/^\/+/, "")}`;
+    const imagePath = url.trim().replace(/\\/g, "/").replace(/^\/+/, "");
+
+    // The API returns paths such as /hotels/<file> and /rooms/<file>.
+    // Keep those paths rooted at the server instead of adding /hotels twice.
+    if (/^(hotels|rooms|avatars)\//i.test(imagePath)) {
+        return `${SERVER_URL}/${imagePath}`;
+    }
+
+    // Older records may contain only the image filename.
+    return `${SERVER_URL}/hotels/${imagePath}`;
 
 };
 

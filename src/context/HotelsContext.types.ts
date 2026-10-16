@@ -199,6 +199,9 @@ export type HotelsContextType = {
 
     loadRandomHotels: () => Promise<void>;
 
+    favoriteHotelIds: string[];
+    toggleFavorite: (hotelId: string) => Promise<void>;
+
     addReview: (
         hotelId: string,
         facilities: number,
@@ -213,3 +216,4 @@ export type HotelsContextType = {
 
 export const HotelsContext =
     createContext<HotelsContextType | null>(null);
+

@@ -13,6 +13,8 @@ const Layout = () => {
 
             <Header />
 
+            <AuthModalManager />
+
             <main className="mx-auto w-full flex-1 bg-white pb-17">
 
                 <Outlet />
@@ -20,7 +22,7 @@ const Layout = () => {
             </main>
 
             <Footer />
-            <AuthModalManager />
+
         </div>
 
     );

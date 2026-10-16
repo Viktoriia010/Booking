@@ -15,6 +15,9 @@ import BookingPage from "@/pages/Booking/BookingPage.tsx";
 import BookingSuccess from "@/pages/Booking/BookingSuccess.tsx";
 import SearchPage from "@/pages/SearchPage.tsx";
 import BookingInfoPage from "@/pages/Booking/BookingInfoPage.tsx";
+import AdminPage from "@/pages/AdminPage.tsx";
+import { AllDoneRoute, InformationRoute } from "@/pages/Auth/AuthRoutePages.tsx";
+
 export const routes = createBrowserRouter([
     {
         path: "/",
@@ -32,6 +35,14 @@ export const routes = createBrowserRouter([
             {
                 Component: ProtectedRoute,
                 children: [
+                    {
+                        path: "information",
+                        Component: InformationRoute,
+                    },
+                    {
+                        path: "all-done",
+                        Component: AllDoneRoute,
+                    },
                     {
                         path: "account",
                         Component: AccountPage,
@@ -51,6 +62,10 @@ export const routes = createBrowserRouter([
                     {
                         path: "security",
                         Component: SecurityPage,
+                    },
+                    {
+                        path: "management",
+                        Component: AdminPage,
                     },
                     {
                         path: "booking/:roomId",
@@ -91,3 +106,10 @@ export const routes = createBrowserRouter([
         ],
     },
 ]);
+
+
+
+
+
+
+

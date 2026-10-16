@@ -15,10 +15,11 @@ const Review = ({
                     borderColor,
                     className = "",
                     textSize = "text-[15px]",
-
                 }: Props) => {
-
     const URL = import.meta.env.VITE_PATH_TO_SERVER;
+
+    const authorName = review.authorName || "Guest";
+    const authorInitial = authorName.charAt(0).toUpperCase();
 
     const ratingBorderColor =
         review.rating < 5
@@ -26,7 +27,6 @@ const Review = ({
             : review.rating > 5 && review.rating <= 6
                 ? "#fdc977"
                 : "#94D0B4";
-
 
     return (
         <div
@@ -37,24 +37,23 @@ const Review = ({
         >
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-
                     {review.authorAvatarUrl ? (
                         <img
-                            src={ `${URL}${review.authorAvatarUrl}`}
-                            alt={review.authorName}
+                            src={`${URL}${review.authorAvatarUrl}`}
+                            alt={authorName}
                             className="h-[48px] w-[48px] shrink-0 rounded-full object-cover"
                         />
                     ) : (
                         <div className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full bg-gray-200">
                             <span className="text-gray-500">
-                                {review.authorName.charAt(0)}
+                                {authorInitial}
                             </span>
                         </div>
                     )}
 
                     <div className="leading-tight">
                         <p className="font-bold text-[#202020]">
-                            {review.authorName}
+                            {authorName}
                         </p>
 
                         {hotelName && (

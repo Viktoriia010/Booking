@@ -1,10 +1,7 @@
-import { useState } from "react";
-import {
-    HotelsContext,
-    type Hotel,
-    type SearchData, type HotelSearchResult, type HotelFiltersResponse,
-} from "./HotelsContext.types";
+import { useEffect, useState } from "react";
+import {HotelsContext, type Hotel, type SearchData, type HotelSearchResult, type HotelFiltersResponse,} from "./HotelsContext.types";
 import { apiFetch, readError } from "../api";
+import { useAuth } from "./useAuth";
 
 export function HotelsProvider({
                                    children,
@@ -21,6 +18,15 @@ export function HotelsProvider({
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(7);
+
+    const { isAuth } = useAuth();
+    const [favoriteHotelIds, setFavoriteHotelIds] = useState<string[]>(() => {
+        try {
+            return JSON.parse(localStorage.getItem("likedHotels") || "[]") as string[];
+        } catch {
+            return [];
+        }
+    });
 
 
     const loadRandomHotels = async () => {
@@ -355,9 +361,46 @@ export function HotelsProvider({
             setSelectedHotel(updatedHotel);
         }
     };
+    useEffect(() => {
+        if (!isAuth) return;
+        let cancelled = false;
+        const loadFavoriteIds = async () => {
+            try {
+                const guestIds = JSON.parse(localStorage.getItem("likedHotels") || "[]") as string[];
+                for (const hotelId of guestIds) {
+                    const saveResponse = await apiFetch(`/Favorite/${hotelId}`, { method: "PUT" });
+                    if (!saveResponse.ok) continue;
+                }
+                const response = await apiFetch("/Favorite/ids");
+                if (!response.ok) throw new Error(await readError(response));
+                const result = await response.json() as string[];
+                if (!cancelled) {
+                    setFavoriteHotelIds(result);
+                    localStorage.removeItem("likedHotels");
+                }
+            } catch (favoriteError) {
+                console.error("Could not load saved favorites:", favoriteError);
+            }
+        };
+        void loadFavoriteIds();
+        return () => { cancelled = true; };
+    }, [isAuth]);
 
-
-
+    const toggleFavorite = async (hotelId: string) => {
+        const isFavorite = favoriteHotelIds.includes(hotelId);
+        if (isAuth) {
+            const response = await apiFetch(`/Favorite/${hotelId}`, {
+                method: isFavorite ? "DELETE" : "PUT",
+            });
+            if (!response.ok) throw new Error(await readError(response));
+        }
+        const updatedIds = isFavorite
+            ? favoriteHotelIds.filter(id => id !== hotelId)
+            : [...favoriteHotelIds, hotelId];
+        setFavoriteHotelIds(updatedIds);
+        if (!isAuth) localStorage.setItem("likedHotels", JSON.stringify(updatedIds));
+        window.dispatchEvent(new Event("favorite-updated"));
+    };
     return (
         <HotelsContext.Provider
             value={{
@@ -371,7 +414,9 @@ export function HotelsProvider({
                 total,
                 page,
                 pageSize,
-                applyFilters,
+                 favoriteHotelIds,
+                toggleFavorite,
+               applyFilters,
                 loadHotels,
                 loadRandomHotels,
                 loadFilters,
@@ -682,3 +727,7 @@ export function HotelsProvider({
 //         </HotelsContext.Provider>
 //     );
 // }
+
+
+
+

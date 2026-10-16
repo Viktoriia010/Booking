@@ -7,6 +7,7 @@ import { canManageReviews, getUserRole } from "@/utils/authRole";
 import HotelCard from "@/components/hotel/HotelCard.tsx";
 import type { HotelFavorite} from "@/context/HotelsContext.types.ts";
 import { useHotels } from "@/hooks/useHotels";
+import {locationsStore} from "@/store/locationsStore.ts";
 
 type AccountData = {
     name: string;
@@ -65,57 +66,6 @@ type AccountReview = {
     createdAt: string;
 };
 
-const countries = [
-    "Ukraine",
-    "United Kingdom",
-    "Poland",
-    "Germany",
-    "France",
-    "United States",
-];
-
-const cities: Record<
-    string,
-    string[]
-> = {
-    Ukraine: [
-        "Dnipro",
-        "Kyiv",
-        "Lviv",
-        "Odesa",
-        "Kharkiv",
-    ],
-
-    "United Kingdom": [
-        "London",
-        "Manchester",
-        "Liverpool",
-    ],
-
-    Poland: [
-        "Warsaw",
-        "Krakow",
-        "Gdansk",
-    ],
-
-    Germany: [
-        "Berlin",
-        "Munich",
-        "Hamburg",
-    ],
-
-    France: [
-        "Paris",
-        "Lyon",
-        "Nice",
-    ],
-
-    "United States": [
-        "New York",
-        "Los Angeles",
-        "Chicago",
-    ],
-};
 
 const currencies = [
     "UAH",
@@ -128,6 +78,17 @@ const AccountPage = () => {
     const navigate =
         useNavigate();
     const showManagement = canManageReviews() || getUserRole() === "" || getUserRole() === "0";
+
+    const locations = locationsStore((state) => state.locations);
+    const loading = locationsStore((state) => state.loading);
+    const error = locationsStore((state) => state.error);
+    const getLocations = locationsStore((state) => state.getLocations);
+
+    useEffect(() => {
+        void getLocations();
+    }, [getLocations]);
+
+
 
     const {
         isAuth,
@@ -153,6 +114,9 @@ const AccountPage = () => {
                 "",
             dateOfBirth: "",
         });
+
+    const [savedName, setSavedName] = useState(user?.name || "");
+    const [editingName, setEditingName] = useState(false);
 
     const [dateParts, setDateParts] =
         useState<DateParts>({
@@ -193,6 +157,11 @@ const AccountPage = () => {
 
     const [favoriteHotels, setFavoriteHotels] = useState<HotelFavorite[]>([]);
     const visibleFavorites = favoriteHotels.filter(hotel => favoriteHotelIds.includes(hotel.id));
+
+    const cities =
+        locations.find(
+            (location) => location.country === data.country
+        )?.cities ?? [];
 
 
     const fileInputRef =
@@ -254,6 +223,7 @@ const AccountPage = () => {
                             account.dateOfBirth ||
                             "",
                     });
+                    setSavedName(account.name || "");
 
                     if (
                         account.dateOfBirth
@@ -492,6 +462,8 @@ const AccountPage = () => {
             );
         };
 
+
+
     const handleDateChange =
         (
             part:
@@ -667,6 +639,8 @@ const AccountPage = () => {
                 setMessage(
                     "Account saved."
                 );
+                setSavedName(data.name);
+                setEditingName(false);
             } catch (error) {
                 setMessage(
                     error instanceof Error
@@ -688,10 +662,17 @@ const AccountPage = () => {
             data.avatarUrl
         );
 
-    const availableCities =
-        cities[
-            data.country
-            ] || [];
+    const handleCountryChange = (
+        event: ChangeEvent<HTMLSelectElement>
+    ) => {
+        const country = event.target.value;
+
+        setData((current) => ({
+            ...current,
+            country,
+            city: "",
+        }));
+    };
 
     return (
         <div className="min-h-screen bg-white px-4 py-7 font-['Nunito_Sans'] sm:px-8">
@@ -722,7 +703,7 @@ const AccountPage = () => {
                 </div>
 
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-3"><AccountTabs />{showManagement && <button type="button" onClick={() => navigate("/management")} className="rounded-full border border-[#581ADB] px-4 py-2 text-xs font-bold text-[#581ADB] hover:bg-[#f5f0ff]">{canManageReviews() ? "Management" : "Admin setup"}</button>}</div>
-\r`n                <h1 className="text-[24px] font-extrabold text-[#581ADB]">
+                <h1 className="text-[24px] font-extrabold text-[#581ADB]">
                     Your Account
                 </h1>
 
@@ -744,14 +725,65 @@ const AccountPage = () => {
                             </div>
 
                             <div className="p-4">
-                                <p className="text-sm font-extrabold text-[#222]">
-                                    {
-                                        data.name
-                                    }{" "}
-                                    <span className="text-[#999]">
-                                        ✎
-                                    </span>
-                                </p>
+                                <div className="flex min-h-5 items-center gap-2">
+                                    {editingName ? (
+                                        <>
+                                            <input
+                                                autoFocus
+                                                aria-label="Your name"
+                                                value={data.name}
+                                                onChange={(event) => setData((current) => ({ ...current, name: event.target.value }))}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === "Escape") {
+                                                        setData((current) => ({ ...current, name: savedName }));
+                                                        setEditingName(false);
+                                                    } else if (event.key === "Enter") {
+                                                        event.preventDefault();
+                                                        (document.getElementById("account-form") as HTMLFormElement | null)?.requestSubmit();
+                                                    }
+                                                }}
+                                                className="w-40 border-b border-[#999] bg-transparent text-sm font-extrabold text-[#222] outline-none focus:border-[#581ADB]"
+                                            />
+                                            <button
+                                                type="submit"
+                                                form="account-form"
+                                                disabled={saving || !data.name.trim()}
+                                                className="text-xs font-semibold text-[#581ADB] disabled:opacity-50"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setData({ ...data, name: savedName });
+                                                    setEditingName(false);
+                                                }}
+                                                className="text-xs text-[#777]"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <p className="text-sm font-extrabold text-[#222]">{data.name}</p>
+                                            <button
+                                                type="button"
+                                                onMouseDown={(event) => {
+                                                    event.preventDefault();
+                                                }}
+                                                onClick={(event) => {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                    setEditingName(true);
+                                                }}
+                                                aria-label="Edit name"
+                                                className="text-[#999] hover:text-[#581ADB]"
+                                            >
+                                                ✎
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
 
                                 <button
                                     type="button"
@@ -781,6 +813,7 @@ const AccountPage = () => {
                 </div>
 
                 <form
+                    id="account-form"
                     onSubmit={submit}
                     className="mt-3 rounded-[14px] border border-[#E5E5E5] p-4"
                 >
@@ -805,32 +838,26 @@ const AccountPage = () => {
 
                         <select
                             name="country"
-                            value={
-                                data.country
-                            }
-                            onChange={
-                                handleTextChange
-                            }
+                            value={data.country}
+                            onChange={handleCountryChange}
+                            disabled={loading}
                             className="h-10 rounded-full border border-[#E5E5E5] bg-white px-4 text-xs italic text-[#777] outline-none focus:border-[#581ADB]"
                         >
-                            <option value="">
-                                Country
+                            <option value="" disabled>
+                                {loading ? "Loading countries..." : "Country"}
                             </option>
 
-                            {countries.map(
-                                country => (
-                                    <option
-                                        key={
-                                            country
-                                        }
-                                    >
-                                        {
-                                            country
-                                        }
-                                    </option>
-                                )
-                            )}
+                            {locations.map((location) => (
+                                <option key={location.country} value={location.country}>
+                                    {location.country}
+                                </option>
+                            ))}
                         </select>
+                        {error && (
+                            <p className="text-xs text-red-500">
+                                {error}
+                            </p>
+                        )}
 
                         <div>
                             <input
@@ -853,31 +880,30 @@ const AccountPage = () => {
 
                         <select
                             name="city"
-                            value={
-                                data.city
-                            }
-                            onChange={
-                                handleTextChange
-                            }
-                            className="h-10 rounded-full border border-[#E5E5E5] bg-white px-4 text-xs italic text-[#777] outline-none focus:border-[#581ADB]"
+                            value={data.city}
+                            onChange={handleTextChange}
+                            disabled={!data.country || loading}
+                            className="h-10 rounded-full border border-[#E5E5E5] bg-white px-4 text-xs italic text-[#777] outline-none focus:border-[#581ADB] disabled:cursor-not-allowed disabled:bg-[#F5F5F5]"
                         >
-                            <option value="">
-                                City
+                            <option value="" disabled>
+                                {loading
+                                    ? "Loading cities..."
+                                    : !data.country
+                                        ? "Select country first"
+                                        : "City"}
                             </option>
 
-                            {availableCities.map(
-                                city => (
-                                    <option
-                                        key={
-                                            city
-                                        }
-                                    >
-                                        {city}
-                                    </option>
-                                )
-                            )}
+                            {cities.map((city) => (
+                                <option key={city} value={city}>
+                                    {city}
+                                </option>
+                            ))}
                         </select>
-
+                        {error && (
+                            <p className="text-xs text-red-500">
+                                {error}
+                            </p>
+                        )}
                         <div>
                             <div className="grid grid-cols-3 gap-2">
                                 <input
@@ -966,6 +992,7 @@ const AccountPage = () => {
                             )}
                         </select>
                     </div>
+
 
                     <div className="mt-4 flex justify-end">
                         <button
@@ -1374,17 +1401,17 @@ const AccountPage = () => {
                         </div>
                     ) : (
                         <div className="overflow-x-auto scrollbar-hide mt-4">
-                        <div className="grid gap-x-7 gap-y-9 px-3
+                            <div className="grid gap-x-7 gap-y-9 px-3
                              grid-flow-col w-auto
                             ">
-                            {visibleFavorites.map((hotel) => (
-                                <HotelCard
-                                    key={hotel.id}
-                                    hotel={hotel}
-                                />
-                            ))}
-                        </div>
+                                {visibleFavorites.map((hotel) => (
+                                    <HotelCard
+                                        key={hotel.id}
+                                        hotel={hotel}
+                                    />
+                                ))}
                             </div>
+                        </div>
                     )}
                 </section>
             </div>
@@ -1839,9 +1866,3 @@ export default AccountPage;
 // };
 //
 // export default AccountPage;
-
-
-
-
-
-

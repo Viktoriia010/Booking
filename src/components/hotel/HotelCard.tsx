@@ -6,7 +6,6 @@ import starRating from "@/assets/star-rounded.svg";
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "@/api.ts";
 import { useHotels } from "@/hooks/useHotels";
-import RatingCircle from "./RatingCircle.tsx";
 
 const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
     const [currentImage, setCurrentImage] = useState(0);
@@ -126,10 +125,10 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
                                         setCurrentImage(index);
                                     }}
                                     className={`h-[9px] w-[9px] cursor-pointer rounded-full ${
-    index === imageIndex
-        ? "bg-white"
-        : "bg-white/55"
-}`}
+                                        index === imageIndex
+                                            ? "bg-white"
+                                            : "bg-white/55"
+                                    }`}
                                 />
                             ))}
                         </div>
@@ -153,7 +152,7 @@ const HotelCard = ({ hotel }: { hotel: Hotel | HotelFavorite }) => {
                     ))}
                 </div>
 
-                <RatingCircle rating={hotel.rating} />
+                {/*<RatingCircle rating={hotel.rating} />*/}
             </div>
 
             <div className="text-[16px] text-gray-500">{hotel.address}</div>

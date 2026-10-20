@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { apiFetch, readError } from "@/api";
 
 type LastBooking = {
     bookingId: string;
@@ -40,8 +41,34 @@ const BookingSuccess = () => {
             getLastBooking
         );
 
-    const printConfirmation = () => {
-        window.print();
+    const [pdfBusy, setPdfBusy] = useState(false);
+    const [pdfError, setPdfError] = useState("");
+
+    const downloadConfirmation = async () => {
+        if (!booking?.bookingId) {
+            setPdfError("The booking number is missing. Please open your booking from your account.");
+            return;
+        }
+
+        setPdfBusy(true);
+        setPdfError("");
+        try {
+            const response = await apiFetch(`/Booking/${booking.bookingId}/pdf`);
+            if (!response.ok) throw new Error(await readError(response));
+            const pdf = await response.blob();
+            const objectUrl = URL.createObjectURL(pdf);
+            const link = document.createElement("a");
+            link.href = objectUrl;
+            link.download = `booking-${booking.bookingId}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+        } catch (error) {
+            setPdfError(error instanceof Error ? error.message : "Could not download the booking PDF.");
+        } finally {
+            setPdfBusy(false);
+        }
     };
 
     return (
@@ -137,6 +164,13 @@ const BookingSuccess = () => {
 
                         <div className="mt-3 space-y-2 text-sm">
                             <div className="flex justify-between gap-4">
+                                <span className="text-[#777]">Booking ID</span>
+                                <span className="break-all text-right font-bold text-[#222]">
+                                    {booking.bookingId}
+                                </span>
+                            </div>
+
+                            <div className="flex justify-between gap-4">
                                 <span className="text-[#777]">
                                     Room
                                 </span>
@@ -193,11 +227,13 @@ const BookingSuccess = () => {
                 {/* PDF */}
                 <button
                     type="button"
-                    onClick={printConfirmation}
+                    onClick={() => void downloadConfirmation()}
+                    disabled={pdfBusy || !booking?.bookingId}
                     className="mb-4 flex h-12 w-full items-center justify-center rounded-full bg-[#581ADB] text-sm font-bold text-white shadow-[0_4px_15px_rgba(88,26,219,0.25)] transition hover:bg-violet-800"
                 >
-                    Save PDF confirmation
+                    {pdfBusy ? "Preparing PDF…" : "Save PDF confirmation"}
                 </button>
+                {pdfError && <p role="alert" className="mb-4 text-sm text-red-600">{pdfError}</p>}
 
                 {/* Navigation */}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

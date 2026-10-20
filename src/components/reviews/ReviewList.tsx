@@ -29,14 +29,9 @@ const ReviewList = ({ reviews, hotelName }: Props) => {
                     lg:grid-cols-3
                 "
             >
-                {visibleReviews.map((review, index) => (
+                {visibleReviews.map((review) => (
                     <div
                         key={review.id}
-                        className={
-                            !expanded && index >= 3
-                                ? "hidden lg:block"
-                                : ""
-                        }
                     >
                         <Review
                             review={review}
@@ -47,7 +42,7 @@ const ReviewList = ({ reviews, hotelName }: Props) => {
                 ))}
             </div>
 
-            {!expanded && reviews.length > 3 && (
+            {!expanded && reviews.length > 9 && (
                 <div className="mt-8 flex justify-center">
                     <ShowMoreButton
                         onClick={() => setExpanded(true)}

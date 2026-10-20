@@ -196,11 +196,8 @@ const HotelPage = () => {
                             {hotel.name}
                         </h1>
 
-                        <p className="
-                        mt-2 text-[12px] text-[#717171]
-                        sm:text-[14px]
-                    ">
-                            (380) 555-0103
+                        <p className="mt-2 text-[12px] text-[#717171] sm:text-[14px]">
+                            {hotel.address}{hotel.address && hotel.city ? " · " : ""}{hotel.city}, {hotel.country}
                         </p>
                     </div>
 
@@ -645,6 +642,26 @@ const HotelPage = () => {
                     )}
                 </section>
 
+
+                {/* The coordinates come from the admin's saved Google Maps pin. */}
+                <section className="mb-14">
+                    <h2 className="mb-5 text-center text-[13px] uppercase text-[#717171]">Hotel location</h2>
+                    <div className="overflow-hidden rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.08)]">
+                        <iframe
+                            title={`${hotel.name} on Google Maps`}
+                            className="h-[220px] w-full sm:h-[280px]"
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            src={`https://www.google.com/maps?q=${hotel.latitude !== 0 || hotel.longitude !== 0 ? `${hotel.latitude},${hotel.longitude}` : encodeURIComponent([hotel.address, hotel.city, hotel.country].filter(Boolean).join(", "))}&output=embed`}
+                        />
+                    </div>
+                    <a
+                        className="mt-2 inline-block text-xs font-semibold text-[#581ADB] underline"
+                        href={hotel.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([hotel.address, hotel.city, hotel.country].filter(Boolean).join(", "))}`}
+                        target="_blank"
+                        rel="noreferrer"
+                    >Open in Google Maps</a>
+                </section>
 
                 {/* ALL REVIEWS */}
 

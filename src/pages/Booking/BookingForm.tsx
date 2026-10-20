@@ -170,10 +170,7 @@ const BookingForm = ({
                     ""
                 );
 
-            if (
-                cleanCardNumber.length <
-                16
-            ) {
+            if (!/^\d{16}$/.test(cleanCardNumber)) {
                 setError(
                     "Enter a valid card number."
                 );
@@ -212,6 +209,11 @@ const BookingForm = ({
                                 travelDetails:
                                 booking.travelDetails,
 
+                                cardType,
+
+                                cardLast4:
+                                    cleanCardNumber.slice(-4),
+
                                 isPaid: false,
                             }),
                         }
@@ -233,15 +235,15 @@ const BookingForm = ({
                     );
                 }
 
+                const bookingId = data?.id ?? data?.Id;
+                if (typeof bookingId !== "string" || !bookingId) {
+                    throw new Error("The server created no booking number, so the confirmation PDF cannot be generated.");
+                }
+
                 localStorage.setItem(
                     "last_booking",
                     JSON.stringify({
-                        bookingId:
-                            data?.id ||
-                            Math.floor(
-                                Math.random() *
-                                90000
-                            ) + 10000,
+                        bookingId,
 
                         hotelName,
 

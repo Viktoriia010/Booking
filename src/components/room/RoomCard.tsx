@@ -1,5 +1,6 @@
 import type { Room } from "@/context/HotelsContext.types";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import {getImageUrl} from "@/api.ts";
 
 type Props = {
@@ -7,6 +8,7 @@ type Props = {
 };
 const RoomCard = ({ room }: Props) => {
     const navigate = useNavigate();
+    const [showInfo, setShowInfo] = useState(false);
 
     return (
         <div
@@ -96,43 +98,6 @@ const RoomCard = ({ room }: Props) => {
                     </span>
                 </div>
 
-                {/* FEATURES */}
-                <div
-                    className="
-                        mt-5
-                        flex
-                        items-center
-                        gap-5
-                        text-[10px]
-                        text-[#717171]
-                        md:text-[12px]
-                        md:gap-6
-                    "
-                >
-                    <span className="flex items-center gap-1.5">
-                        <img
-                            src="/wifi.svg"
-                            alt=""
-                            className="h-4 w-4"
-                        />
-                        free wi-fi
-                    </span>
-
-                    <span className="flex items-center gap-1.5">
-                        <img
-                            src="/bath.svg"
-                            alt=""
-                            className="h-4 w-4"
-                        />
-                        bath
-                    </span>
-                </div>
-
-                {/* CANCELLATION */}
-                <div className="mt-2 flex items-center gap-2 text-[10px] text-[#581ADB] md:text-[12px]">
-                    <span className="text-[11px]">✓</span>
-                    <span>FREE cancellation</span>
-                </div>
             </div>
 
             {/* ACTIONS */}
@@ -169,6 +134,7 @@ const RoomCard = ({ room }: Props) => {
                 {/* INFO */}
                 <button
                     type="button"
+                    onClick={() => setShowInfo(true)}
                     className="
                         order-2
                         h-[32px]
@@ -217,6 +183,23 @@ const RoomCard = ({ room }: Props) => {
                     {room.isAvailable ? "CHOOSE" : "UNAVAILABLE"}
                 </button>
             </div>
+            {showInfo && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setShowInfo(false)}>
+                    <section role="dialog" aria-modal="true" aria-labelledby={`room-info-${room.id}`} className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={(event) => event.stopPropagation()}>
+                        <div className="flex items-start justify-between gap-4">
+                            <h2 id={`room-info-${room.id}`} className="text-lg font-bold text-[#303030]">{room.title}</h2>
+                            <button type="button" aria-label="Close room information" onClick={() => setShowInfo(false)} className="text-2xl leading-none text-[#777]">×</button>
+                        </div>
+                        <dl className="mt-5 space-y-3 text-sm text-[#717171]">
+                            <div className="flex justify-between gap-4"><dt>Bed</dt><dd className="text-right font-semibold text-[#303030]">{room.bedType}</dd></div>
+                            <div className="flex justify-between gap-4"><dt>Maximum guests</dt><dd className="font-semibold text-[#303030]">{room.capacity}</dd></div>
+                            <div className="flex justify-between gap-4"><dt>Availability</dt><dd className="font-semibold text-[#303030]">{room.isAvailable ? "Available" : "Unavailable"}</dd></div>
+                            <div className="flex justify-between gap-4"><dt>Price per night</dt><dd className="font-semibold text-[#581ADB]">${room.pricePerNight}</dd></div>
+                        </dl>
+                        <button type="button" onClick={() => setShowInfo(false)} className="mt-6 w-full rounded-full border border-[#581ADB] py-2 text-sm font-semibold text-[#581ADB]">Close</button>
+                    </section>
+                </div>
+            )}
         </div>
     );
 };

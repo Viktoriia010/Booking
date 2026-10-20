@@ -73,8 +73,8 @@ const initialForm: HotelForm = {
     hotelType: "Hotel",
     hotelChain: "Independent",
     attractions: "",
-    latitude: "0",
-    longitude: "0",
+    latitude: "",
+    longitude: "",
     isPopular: false,
     isCityCentre: false,
     isPopularPlace: false,
@@ -162,6 +162,15 @@ export default function AdminPage() {
         setMessage("");
 
         try {
+            const latitude = Number(form.latitude);
+            const longitude = Number(form.longitude);
+            if (!form.latitude || !form.longitude ||
+                !Number.isFinite(latitude) || !Number.isFinite(longitude) ||
+                latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180 ||
+                (latitude === 0 && longitude === 0)) {
+                throw new Error("Enter valid hotel coordinates from Google Maps.");
+            }
+
             const amenities = form.amenities
                 .split(",")
                 .map((amenity) => amenity.trim())
@@ -177,8 +186,8 @@ export default function AdminPage() {
                     hotelType: form.hotelType.trim(),
                     hotelChain: form.hotelChain.trim(),
                     attractions: form.attractions.trim(),
-                    latitude: Number(form.latitude),
-                    longitude: Number(form.longitude),
+                    latitude,
+                    longitude,
                     isPopular: form.isPopular,
                     isCityCentre: form.isCityCentre,
                     isPopularPlace: form.isPopularPlace,
@@ -535,7 +544,10 @@ return (
                                 />
 
                                 <input
+                                    required
                                     type="number"
+                                    min="-90"
+                                    max="90"
                                     step="any"
                                     className={inputClass}
                                     placeholder="Latitude"
@@ -549,7 +561,10 @@ return (
                                 />
 
                                 <input
+                                    required
                                     type="number"
+                                    min="-180"
+                                    max="180"
                                     step="any"
                                     className={inputClass}
                                     placeholder="Longitude"
@@ -561,6 +576,25 @@ return (
                                         })
                                     }
                                 />
+
+                                <div className="sm:col-span-2">
+                                    <p className="mb-2 text-xs text-[#777]">
+                                        Choose the hotel location in Google Maps, then enter its latitude and longitude above. The map preview updates as you type.
+                                    </p>
+                                    <iframe
+                                        title="Hotel location preview"
+                                        className="h-48 w-full rounded-xl border border-[#e8e5ed]"
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        src={`https://www.google.com/maps?q=${form.latitude && form.longitude ? `${form.latitude},${form.longitude}` : encodeURIComponent([form.address, form.city, form.country].filter(Boolean).join(", ") || "hotel")}&output=embed`}
+                                    />
+                                    <a
+                                        className="mt-2 inline-block text-xs font-semibold text-[#581ADB] underline"
+                                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([form.address, form.city, form.country].filter(Boolean).join(", ") || "hotel")}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >Open this address in Google Maps to copy its coordinates</a>
+                                </div>
 
                                 <label className="text-sm text-[#777]">
                                     Wi-Fi

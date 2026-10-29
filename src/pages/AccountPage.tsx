@@ -675,18 +675,28 @@ const AccountPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white px-4 py-7 font-['Nunito_Sans'] sm:px-8">
-            <div className="mx-auto max-w-[1120px]">
-                <div className="flex items-center justify-between">
-                    <button
-                        type="button"
-                        onClick={() =>
-                            navigate("/")
-                        }
-                        className="text-[10px] text-[#999]"
-                    >
-                        ← Main page
-                    </button>
+        <div className="min-h-screen bg-white px-4 py-7 font-['Nunito_Sans'] sm:px-8 relative">
+            <button
+                type="button"
+                onClick={() =>
+                    navigate("/")
+                }
+                className="absolute left-13 top-15 z-20
+                hidden h-9 w-9 items-center justify-center
+                rounded-full border border-gray-200 bg-white
+               xl:flex
+                xl:left-8"
+            >
+                <img
+                    src="/back-arrow.svg"
+                    alt="Back"
+                />
+            </button>
+            <div className="mx-auto max-w-[1120px] ">
+
+                <div className="flex items-center justify-end
+                ">
+
 
                     <button
                         type="button"

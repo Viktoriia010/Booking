@@ -27,10 +27,6 @@ const Header = () => {
         }
     }, [isAuth, getUser]);
 
-
-    console.log("USER:", user);
-    console.log("AVATAR:", user?.avatarUrl);
-
     return (
         <header className="border-b border-[#EEEEEE] bg-white">
             <div className="mx-auto flex h-[64px] w-full items-center justify-between px-4 sm:h-[80px] sm:px-6">

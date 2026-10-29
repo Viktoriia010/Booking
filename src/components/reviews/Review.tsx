@@ -22,9 +22,9 @@ const Review = ({
     const authorInitial = authorName.charAt(0).toUpperCase();
 
     const ratingBorderColor =
-        review.rating < 5
+        review.rating < 5.0
             ? "#EBAFBA"
-            : review.rating > 5 && review.rating <= 6
+            : review.rating <= 7.0
                 ? "#fdc977"
                 : "#94D0B4";
 

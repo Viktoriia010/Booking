@@ -7,7 +7,7 @@ import Modal from "@/components/modal/Modal.tsx";
 import Login from "@/pages/Auth/Login.tsx";
 import Register from "@/pages/Auth/Register.tsx";
 import VerifyCode from "@/pages/Auth/VerifyCode.tsx";
-import SearchForm from "@/components/hotels/SearchForm.tsx";
+import SearchForm from "@/components/hotel/SearchForm.tsx";
 import type { SearchData } from "@/context/HotelsContext.types.ts";
 import Information from "@/pages/Auth/Information.tsx";
 import AllDone from "@/pages/Auth/AllDone.tsx";

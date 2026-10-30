@@ -98,50 +98,7 @@ const HotelFiltersSidebar = ({filters,searchData,onApply}: HotelFiltersSidebarPr
         <aside className="w-full">
 
 
-            <button
-                type="button"
-                className="
-                    mb-3
-                    flex
-                    h-6
-                    w-full
-                    items-center
-                    justify-between
-                    rounded-full
-                    border
-                    border-[#DDDDDD]
-                    bg-white
-                    px-3
-                    text-[9px]
-                    font-medium
-                    text-[#581ADB]
-                    transition-colors
-                    hover:bg-[#FAF8FF]
-                "
-            >
-                <span>See the map</span>
 
-                <span
-                    className="
-                        flex
-                        h-3
-                        w-3
-                        items-center
-                        justify-center
-                        rounded-full
-                        bg-[#FF385C]
-                    "
-                >
-                    <span
-                        className="
-                            h-1
-                            w-1
-                            rounded-full
-                            bg-white
-                        "
-                    />
-                </span>
-            </button>
 
 
             <div

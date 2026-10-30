@@ -444,7 +444,7 @@ const HotelPage = () => {
                                 </span>
                                 )}
 
-                            {hotel.amenities.map((amenity) => (
+                            {hotel.amenities.slice(0, 3).map((amenity) => (
                                 <span
                                     key={amenity}
                                     className="flex items-center gap-1"
